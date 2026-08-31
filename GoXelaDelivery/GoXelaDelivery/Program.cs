@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -49,6 +50,13 @@ namespace GoXelaDelivery
         private string tipoLicencia;
         private string disponibilidad;
         private int calificacionEntregas;
+        private int cantidadEntregas;
+
+        public int CantidadEntreas
+        {
+            get { return cantidadEntregas; }
+            set { cantidadEntregas = value; }
+        }
 
         public int CalificacionEntregas
         {
@@ -73,12 +81,13 @@ namespace GoXelaDelivery
             get { return numeroLicencia; }
             set { numeroLicencia = value; }
         }
-        public Repartidor(int codigo, string nombreCompleto, string telefono, string numeroLicencia, string tipoLicencia, string disponibilidad, int calificacionEntregas)
+        public Repartidor(int codigo, string nombreCompleto, string telefono, string numeroLicencia, string tipoLicencia, string disponibilidad, int cantidadEntregas, int calificacionEntregas)
             : base(codigo, nombreCompleto, telefono)
         {
             NumeroLicencia = numeroLicencia;
             TipoLicencia = tipoLicencia;
             Disponibilidad = disponibilidad;
+            CantidadEntreas = cantidadEntregas;
             CalificacionEntregas = calificacionEntregas;
         }
         public void MostrarInformacion()
@@ -89,11 +98,16 @@ namespace GoXelaDelivery
             Console.WriteLine($"Numero de licencia: {numeroLicencia}");
             Console.WriteLine($"Tipo Licencia: {TipoLicencia}");
             Console.WriteLine($"Estado: {Disponibilidad}");
+            Console.WriteLine($"Cantidad entregas: {CalificacionEntregas}");
             Console.WriteLine($"Calificación entregas: {CalificacionEntregas}");
         }
         public void actualizarDisponibilidad(string nuevoEstado)
         {
             Disponibilidad = nuevoEstado; 
+        }
+        public void ActualizarEntregas(int nuevasEntregas)
+        {
+            CantidadEntreas += nuevasEntregas;
         }
     }
     class Cliente : Persona
@@ -283,7 +297,7 @@ namespace GoXelaDelivery
             Modelo = modelo;
             CapacidadMaximaCarga = capacidadMax;
             Estado = estado;
-            CostoOperativo = CostoOperativo;
+            CostoOperativo = costoOperativo;
         }
 
     }
@@ -301,6 +315,16 @@ namespace GoXelaDelivery
         {
             Placa = placa;
         }
+        public void MostrarInformacion()
+        {
+            Console.WriteLine($"Código: AUT-{Codigo}");
+            Console.WriteLine($"Placa: {Placa}");
+            Console.WriteLine($"Marca: {Marca}");
+            Console.WriteLine($"Modelo: {Modelo}");
+            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"Estado: {Estado}");
+            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+        }
 
     }
     class Moticicleta : Vehiculo
@@ -317,6 +341,16 @@ namespace GoXelaDelivery
         {
             Placa = placa;
         }
+        public void MostrarInformacion()
+        {
+            Console.WriteLine($"Código: MOT-{Codigo}");
+            Console.WriteLine($"Placa: {Placa}");
+            Console.WriteLine($"Marca: {Marca}");
+            Console.WriteLine($"Modelo: {Modelo}");
+            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"Estado: {Estado}");
+            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+        }
     }
     class Bicicleta : Vehiculo
     {
@@ -324,6 +358,15 @@ namespace GoXelaDelivery
             : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
         {
 
+        }
+        public void MostrarInformacion()
+        {
+            Console.WriteLine($"Código: BIC-{Codigo}");
+            Console.WriteLine($"Marca: {Marca}");
+            Console.WriteLine($"Modelo: {Modelo}");
+            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"Estado: {Estado}");
+            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
         }
     }
     class Paquete
@@ -429,7 +472,7 @@ namespace GoXelaDelivery
             List<Cliente> Clientes = new List<Cliente>();
             List<Repartidor> Repartidores = new List<Repartidor>();
             List<Automovil> Automoviles = new List<Automovil>();
-            List<Moticicleta> Mocoticletas = new List<Moticicleta>();
+            List<Moticicleta> Motocicletas = new List<Moticicleta>();
             List<Bicicleta> Bicicletas = new List<Bicicleta>();
 
             int opcion;
@@ -544,7 +587,7 @@ namespace GoXelaDelivery
                                         Console.Write("Ingrese número: ");
                                         numeroRepartidor = Console.ReadLine();
                                         if (ValidarTelefono(numeroRepartidor))
-                                        {
+                                        { 
                                             break;
                                         }
                                         else
@@ -617,8 +660,8 @@ namespace GoXelaDelivery
                                         }
                                     }
                                     int cantidadEntregas = ValidacionEntradas("Ingrese cantidad de entregas: ", 1, 500, "Cantidad de entregas no valida");
-
-                                    Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estado, 5));
+                                    int calificacion = ValidacionEntradas("Ingrese promedio: ", 1, 5, "Promedio no valido");
+                                    Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estado, cantidadEntregas, calificacion));
                                     Console.ReadKey();
                                     break;
                                 case 2:
@@ -697,6 +740,10 @@ namespace GoXelaDelivery
                                     break;
                                 case 3:
                                     Console.Clear();
+                                    Console.WriteLine("Actualizar entregas");
+                                    Console.WriteLine();
+                                    Console.WriteLine("Ingrese nombre: ");
+                                    string nombreRep = Console.ReadLine();
 
                                     Console.ReadKey();
                                     break;
@@ -717,8 +764,183 @@ namespace GoXelaDelivery
                         break;
                     case 3:
                         Console.Clear();
-
-                        Console.ReadKey();
+                        Console.WriteLine("Gestion de vehiculos");
+                        Console.WriteLine();
+                        int opcionVehiculo;
+                        do
+                        {
+                            Console.Clear();
+                            Console.WriteLine("1. Registrar vehiculo\n2. Consultar Vehiculo\n3. Volver al menu principal");
+                            opcionVehiculo = ValidacionEntradas("Eliga una opción: ", 1, 3, "Opción no valida");
+                            switch (opcionVehiculo)
+                            {
+                                case 1:
+                                    int tipoVehiculo;
+                                    do
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("1. Automovil\n2. Motocicleta\n3. Bicicleta\n4. Volver");
+                                        tipoVehiculo = ValidacionEntradas("Eliga una opción: ", 1, 4, "Opción no valida");
+                                        switch (tipoVehiculo)
+                                        {
+                                            case 1:
+                                                Console.Clear();
+                                                int codigoAuto = Automoviles.Count + 1;
+                                                Console.Write("Ingrese placa: ");
+                                                string placaAutomovil = Console.ReadLine();
+                                                Console.Write("Ingrese marca: ");
+                                                string marca = Console.ReadLine();
+                                                Console.Write("Ingrese modelo: ");
+                                                string modelo = Console.ReadLine();
+                                                double capacidadMaxima = 250.00;
+                                                string estadoAutomovil;
+                                                while (true)
+                                                {
+                                                    int opcionAutomovil = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
+                                                    if (opcionAutomovil == 1)
+                                                    {
+                                                        estadoAutomovil = "Disponible";
+                                                        break;
+                                                    }
+                                                    else if (opcionAutomovil == 1)
+                                                    {
+                                                        estadoAutomovil = "Asignado";
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        estadoAutomovil = "En mantenimiento";
+                                                        break;
+                                                    }
+                                                }
+                                                double costoOperativo = 35.00;
+                                                Automoviles.Add(new Automovil(codigoAuto, marca, modelo, capacidadMaxima, estadoAutomovil, costoOperativo, placaAutomovil));
+                                                Console.WriteLine();
+                                                Console.WriteLine("Automovil registrado con exito!");
+                                                Console.ReadKey();
+                                                    break;
+                                            case 2:
+                                                Console.Clear();
+                                                int codigoMoticicleta = Motocicletas.Count + 1;
+                                                Console.Write("Ingrese placa");
+                                                string placaMoto = Console.ReadLine();
+                                                Console.Write("Ingrese marca: ");
+                                                string marcaMoto = Console.ReadLine();
+                                                Console.Write("Ingrese modelo: ");
+                                                string modeloMoto = Console.ReadLine();
+                                                double capacidadMaximaMoto = 30.00;
+                                                string estadoMotocicleta;
+                                                while (true)
+                                                {
+                                                    int opcionMoticicleta = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
+                                                    if (opcionMoticicleta == 1)
+                                                    {
+                                                        estadoMotocicleta = "Disponible";
+                                                        break;
+                                                    }
+                                                    else if (opcionMoticicleta == 1)
+                                                    {
+                                                        estadoMotocicleta = "Asignado";
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        estadoMotocicleta = "En mantenimiento";
+                                                        break;
+                                                    }
+                                                }
+                                                double costoOperativoMoto = 15.00;
+                                                Motocicletas.Add(new Moticicleta(codigoMoticicleta, marcaMoto, modeloMoto, capacidadMaximaMoto, estadoMotocicleta, costoOperativoMoto, placaMoto));
+                                                Console.WriteLine();
+                                                Console.WriteLine("Moticleta registrada con exito");
+                                                Console.ReadKey();
+                                                break;
+                                            case 3:
+                                                Console.Clear();
+                                                int codigoBicicleta = Bicicletas.Count + 1;
+                                                Console.Write("Ingrese marca: ");
+                                                string marcaBicicleta = Console.ReadLine();
+                                                Console.Write("Ingrese modelo: ");
+                                                string modeloBicleta = Console.ReadLine();
+                                                double capacidadMaximaBici = 10.00;
+                                                string estadoBicicleta;
+                                                while (true)
+                                                {
+                                                    int opcionBicicleta = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
+                                                    if (opcionBicicleta == 1)
+                                                    {
+                                                        estadoBicicleta = "Disponible";
+                                                        break;
+                                                    }
+                                                    else if (opcionBicicleta == 1)
+                                                    {
+                                                        estadoBicicleta = "Asignado";
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        estadoBicicleta = "En mantenimiento";
+                                                        break;
+                                                    }
+                                                }
+                                                double costoOperativoBicicleta = 15.00;
+                                                Bicicletas.Add(new Bicicleta(codigoBicicleta, marcaBicicleta, modeloBicleta, capacidadMaximaBici, estadoBicicleta, costoOperativoBicicleta));
+                                                Console.WriteLine();
+                                                Console.WriteLine("Bicicleta registrada con exito!");
+                                                Console.ReadKey();
+                                                break;
+                                            case 4:
+                                                break;
+                                        }
+                                    }while (tipoVehiculo != 4) ;
+                                    break;
+                                case 2:
+                                    
+                                    int opcionConsultaVehiculo;
+                                    do
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("Consultar Vehiculos");
+                                        Console.WriteLine("1. Automoviles\n2. Motocicletas\n3. Bicicletas\n4. Volver atras");
+                                        opcionConsultaVehiculo = ValidacionEntradas("Ingrese una opción: ", 1, 4, "Opción no valida");
+                                        switch (opcionConsultaVehiculo)
+                                        {
+                                            case 1:
+                                                Console.Clear();
+                                                foreach(Automovil automovil in Automoviles)
+                                                {
+                                                    automovil.MostrarInformacion();
+                                                    Console.WriteLine();
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 2:
+                                                Console.Clear();
+                                                foreach(Moticicleta motocicleta in Motocicletas)
+                                                {
+                                                    motocicleta.MostrarInformacion();
+                                                    Console.WriteLine();
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 3:
+                                                Console.Clear();
+                                                foreach(Bicicleta bicicleta in Bicicletas)
+                                                {
+                                                    bicicleta.MostrarInformacion();
+                                                    Console.WriteLine();
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 4:
+                                                break;
+                                        }
+                                    } while (opcionConsultaVehiculo != 4);
+                                    break;
+                                case 3:
+                                    break;
+                            }
+                        }while(opcionVehiculo != 3);
                         break;
                     case 4:
                         Console.Clear();
