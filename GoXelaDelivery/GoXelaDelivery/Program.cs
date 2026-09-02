@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
@@ -351,6 +352,9 @@ namespace GoXelaDelivery
                 }
             }
         }
+
+
+        public List<Incidencias> IncidenciasHistorial { get; set; } = new List<Incidencias>();
         public Entrega(DateTime fecha, int codigo, string direccionOrigen, string direccionDestino, double distanciaEstimada, string tipoServicio, string estado, double tarifaBase, double recargos, double descuentos, double total)
         {
             Fecha = fecha;
@@ -364,6 +368,11 @@ namespace GoXelaDelivery
             Recargos = recargos;
             Descuentos = descuentos;
             Total = total;
+            IncidenciasHistorial = new List<Incidencias>();
+        }
+        public void AgregarNuevaIncidencia(Incidencias incidencia)
+        {
+            IncidenciasHistorial.Add(incidencia);
         }
 
     }
@@ -547,7 +556,7 @@ namespace GoXelaDelivery
         private string direccionOrigen;
         private string direccionDestino;
         private string estado;
-        
+
         public string Estado
         {
             get { return estado; }
@@ -657,7 +666,7 @@ namespace GoXelaDelivery
         }
         public virtual void CalcularCostoEnvio()
         {
-            // Implementación del cálculo de costo de envío para paquetes estándar
+
         }
 
     }
@@ -669,7 +678,7 @@ namespace GoXelaDelivery
 
         }
 
-        
+
 
     }
     class PaqueteFragil : Paquete
@@ -697,6 +706,71 @@ namespace GoXelaDelivery
 
         }
     }
+    class Incidencias
+    {
+        private int codigo;
+        private string tipo;
+        private string descripcion;
+        private DateTime fecha;
+        private string estado;
+        private string accionTomada;
+
+        public string AccionTomada
+        {
+            get { return accionTomada; }
+            set { accionTomada = value; }
+        }
+
+        public string Estado
+        {
+            get { return estado; }
+            set { estado = value; }
+        }
+
+        public DateTime Fecha
+        {
+            get { return fecha; }
+            set { fecha = value; }
+        }
+
+        public string Descripcion
+        {
+            get { return descripcion; }
+            set { descripcion = value; }
+        }
+
+        public string Tipo
+        {
+            get { return tipo; }
+            set { tipo = value; }
+        }
+
+        public int Codigo
+        {
+            get { return codigo; }
+            set { codigo = value; }
+        }
+        public Incidencias(int codigo, string tipo, string descripcion, DateTime fecha, string estado, string accionTomada)
+        {
+            Codigo = codigo;
+            Tipo = tipo;
+            Descripcion = descripcion;
+            Fecha = fecha;
+            Estado = estado;
+            AccionTomada = accionTomada;
+        }
+        public void MostrarInformacion()
+        {
+            Console.WriteLine($"Código: INC-{Codigo}");
+            Console.WriteLine($"Tipo: {Tipo}");
+            Console.WriteLine($"Descripción: {Descripcion}");
+            Console.WriteLine($"Fecha: {Fecha}");
+            Console.WriteLine($"Estado: {Estado}");
+            Console.WriteLine($"Acción tomada: {AccionTomada}");
+        }
+    }
+
+
     internal class Program
     {
         static void Main(string[] args)
@@ -712,6 +786,8 @@ namespace GoXelaDelivery
             List<PaqueteFragil> PaquetesFragiles = new List<PaqueteFragil>();
             List<ProductoRefrigerado> ProductosRefrigerados = new List<ProductoRefrigerado>();
             List<Entrega> Entregass = new List<Entrega>();
+            List<Incidencias> IncidenciasList = new List<Incidencias>();
+
 
             int opcion;
             do
@@ -851,7 +927,7 @@ namespace GoXelaDelivery
                                     while (true)
                                     {
                                         int tipoLicenciaa = ValidacionEntradas("Seleccióne tipo de licencia: \n1. C\n2. B\n3. A\n4. M\n5. E\n>", 1, 5, "Opción invalida");
-                                        if(tipoLicenciaa == 1)
+                                        if (tipoLicenciaa == 1)
                                         {
                                             tipoLicencia = "C";
                                             break;
@@ -881,12 +957,12 @@ namespace GoXelaDelivery
                                     while (true)
                                     {
                                         int estadoRepartidorIn = ValidacionEntradas("Estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
-                                        if(estadoRepartidorIn == 1)
+                                        if (estadoRepartidorIn == 1)
                                         {
                                             estadoRepartidor = "Disponible";
                                             break;
                                         }
-                                        else if(estadoRepartidorIn == 2)
+                                        else if (estadoRepartidorIn == 2)
                                         {
                                             estadoRepartidor = "Asignado";
                                             break;
@@ -903,96 +979,125 @@ namespace GoXelaDelivery
                                     Console.ReadKey();
                                     break;
                                 case 2:
-                                    Console.Clear();
-                                    Console.WriteLine("Actualizar disponibilidad de un repartidor");
-                                    Console.WriteLine();
-                                    Console.Write("Ingrese nombre de repartidor: ");
-                                    string repartidor = Console.ReadLine();
-                                    int indiceRep = -1;
-                                    for (int i = 0; i < Repartidores.Count; i++)
+                                    if (Repartidores.Count == 0)
                                     {
-                                        if (Repartidores[i].NombreCompleto == repartidor)
-                                        {
-                                            indiceRep = i;
-                                            break;
-                                        }
-                                    }
-                                    if (indiceRep != -1)
-                                    {
-                                        Console.WriteLine();
-                                        Console.WriteLine("Repartidor encontrado");
-                                        Console.WriteLine();
-                                        Console.WriteLine($"Estado actual: {Repartidores[indiceRep].Disponibilidad}");
-                                        Console.WriteLine();
-                                        Console.WriteLine("Selecciona nuevo estado");
-                                        while (true)
-                                        {
-                                            int estadoRepartidorNuevo = ValidacionEntradas("Estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
-                                            if (estadoRepartidorNuevo == 1)
-                                            {
-                                                if (Repartidores[indiceRep].Disponibilidad == "Disponible")
-                                                {
-                                                    Console.WriteLine("No puede asignarse el mismo estado!");
-                                                }
-                                                else
-                                                {
-                                                    Repartidores[indiceRep].actualizarDisponibilidad("Disponible");
-                                                    break;
-
-                                                }
-                                            }
-                                            else if (estadoRepartidorNuevo == 2)
-                                            {
-                                                if (Repartidores[indiceRep].Disponibilidad == "Asignado")
-                                                {
-                                                    Console.WriteLine("No puede asignarse el mismo estado!");
-                                                }
-                                                else
-                                                {
-                                                    Repartidores[indiceRep].actualizarDisponibilidad("Asignado");
-                                                    break;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (Repartidores[indiceRep].Disponibilidad == "Fuera de servicio")
-                                                {
-                                                    Console.WriteLine("No puede asignarse el mismo estado!");
-                                                }
-                                                else
-                                                {
-                                                    Repartidores[indiceRep].actualizarDisponibilidad("Fuera de servicio");
-                                                    break;
-                                                }
-                                            }
-                                        }
                                         Console.Clear();
-                                        Console.WriteLine("Estado cambiado exitosamente!");
+                                        Console.WriteLine("No hay repartidores registrados");
                                         Console.ReadKey();
                                         break;
-
                                     }
                                     else
                                     {
-                                        Console.WriteLine("Repartidor no encontrado");
+                                        Console.Clear();
+                                        Console.WriteLine("Actualizar disponibilidad de un repartidor");
+                                        Console.WriteLine();
+                                        Console.Write("Ingrese nombre de repartidor: ");
+                                        string repartidor = Console.ReadLine();
+                                        int indiceRep = -1;
+                                        for (int i = 0; i < Repartidores.Count; i++)
+                                        {
+                                            if (Repartidores[i].NombreCompleto == repartidor)
+                                            {
+                                                indiceRep = i;
+                                                break;
+                                            }
+                                        }
+                                        if (indiceRep != -1)
+                                        {
+                                            Console.WriteLine();
+                                            Console.WriteLine("Repartidor encontrado");
+                                            Console.WriteLine();
+                                            Console.WriteLine($"Estado actual: {Repartidores[indiceRep].Disponibilidad}");
+                                            Console.WriteLine();
+                                            Console.WriteLine("Selecciona nuevo estado");
+                                            while (true)
+                                            {
+                                                int estadoRepartidorNuevo = ValidacionEntradas("1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
+                                                if (estadoRepartidorNuevo == 1)
+                                                {
+                                                    if (Repartidores[indiceRep].Disponibilidad == "Disponible")
+                                                    {
+                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                    }
+                                                    else
+                                                    {
+                                                        Repartidores[indiceRep].actualizarDisponibilidad("Disponible");
+                                                        break;
+
+                                                    }
+                                                }
+                                                else if (estadoRepartidorNuevo == 2)
+                                                {
+                                                    if (Repartidores[indiceRep].Disponibilidad == "Asignado")
+                                                    {
+                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                    }
+                                                    else
+                                                    {
+                                                        Repartidores[indiceRep].actualizarDisponibilidad("Asignado");
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (Repartidores[indiceRep].Disponibilidad == "Fuera de servicio")
+                                                    {
+                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                    }
+                                                    else
+                                                    {
+                                                        Repartidores[indiceRep].actualizarDisponibilidad("Fuera de servicio");
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            Console.Clear();
+                                            Console.WriteLine("Estado cambiado exitosamente!");
+                                            Console.ReadKey();
+                                            break;
+
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Repartidor no encontrado");
+                                        }
+                                        Console.ReadKey();
                                     }
-                                    Console.ReadKey();
                                     break;
                                 case 3:
                                     Console.Clear();
-                                    Console.WriteLine("Actualizar entregas");
-                                    Console.WriteLine();
-                                    Console.WriteLine("Ingrese nombre: ");
-                                    string nombreRep = Console.ReadLine();
+                                    if (Repartidores.Count == 0)
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("No hay repartidores registrados");
+                                        Console.ReadKey();
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Actualizar entregas");
+                                        Console.WriteLine();
+                                        Console.Write("Ingrese nombre: ");
+                                        string nombreRep = Console.ReadLine();
 
-                                    Console.ReadKey();
+                                        Console.ReadKey();
+                                    }
+
                                     break;
                                 case 4:
                                     Console.Clear();
-                                    foreach (Repartidor repartidorSin in Repartidores)
+                                    if (Repartidores.Count == 0)
                                     {
-                                        repartidorSin.MostrarInformacion();
-                                        Console.WriteLine();
+                                        Console.Clear();
+                                        Console.WriteLine("No hay repartidores registrados");
+                                    }
+                                    else
+                                    {
+                                        foreach (Repartidor repartidorSin in Repartidores)
+                                        {
+                                            repartidorSin.MostrarInformacion();
+                                            Console.WriteLine();
+                                        }
                                     }
                                     Console.ReadKey();
                                     break;
@@ -1147,28 +1252,56 @@ namespace GoXelaDelivery
                                         {
                                             case 1:
                                                 Console.Clear();
-                                                foreach (Automovil automovil in Automoviles)
+                                                if (Automoviles.Count == 0)
                                                 {
-                                                    automovil.MostrarInformacion();
-                                                    Console.WriteLine();
+                                                    Console.WriteLine("Sin automoviles registrados");
                                                 }
+                                                else
+                                                {
+                                                    Console.WriteLine("Automoviles:");
+                                                    Console.WriteLine();
+                                                    foreach (Automovil automovil in Automoviles)
+                                                    {
+                                                        automovil.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
+                                                }
+
                                                 Console.ReadKey();
                                                 break;
                                             case 2:
                                                 Console.Clear();
-                                                foreach (Moticicleta motocicleta in Motocicletas)
+                                                if (Motocicletas.Count == 0)
                                                 {
-                                                    motocicleta.MostrarInformacion();
+                                                    Console.WriteLine("Sin motocicletas registradas");
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Motocicletas: ");
                                                     Console.WriteLine();
+                                                    foreach (Moticicleta motocicleta in Motocicletas)
+                                                    {
+                                                        motocicleta.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
                                                 }
                                                 Console.ReadKey();
                                                 break;
                                             case 3:
                                                 Console.Clear();
-                                                foreach (Bicicleta bicicleta in Bicicletas)
+                                                if (Bicicletas.Count == 0)
                                                 {
-                                                    bicicleta.MostrarInformacion();
+                                                    Console.WriteLine("Sin bicicletas registradas");
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Bicicletas: ");
                                                     Console.WriteLine();
+                                                    foreach (Bicicleta bicicleta in Bicicletas)
+                                                    {
+                                                        bicicleta.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
                                                 }
                                                 Console.ReadKey();
                                                 break;
@@ -1382,15 +1515,15 @@ namespace GoXelaDelivery
                                             case 5:
                                                 break;
                                         }
-                                        
 
-                                    }while(tipoPaquete != 5);
+
+                                    } while (tipoPaquete != 5);
 
                                     break;
                                 case 2:
 
                                     Console.Clear();
-                                    Console.WriteLine("Actualizar estado de paquete: ");
+                                    Console.WriteLine("Actualizar estado de paquete");
 
                                     int opcionEstadoPaquete;
                                     do
@@ -1400,81 +1533,82 @@ namespace GoXelaDelivery
                                         {
                                             case 1:
                                                 {
-                                                    Console.WriteLine();
+                                                    Console.Clear();
 
-                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado") - 1;
+
+                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
                                                     int indicePaquete = -1;
                                                     for (int i = 0; i < Documentos.Count; i++)
                                                     {
-                                                        if (codigoPaqueteBuscar == Documentos[i].Codigo)
+                                                        if (Documentos[i].Codigo == codigoPaqueteBuscar)
                                                         {
                                                             indicePaquete = i;
                                                             break;
                                                         }
                                                     }
 
-                                                    Console.WriteLine("Estado Actual: " + Documentos[codigoPaqueteBuscar].Estado);
 
                                                     if (indicePaquete == -1)
                                                     {
                                                         Console.WriteLine("Codigo no encontrado");
                                                         Console.ReadKey();
-                                                        break; 
+                                                        break;
                                                     }
                                                     else
                                                     {
                                                         Console.WriteLine("Paquete encontrado");
-                                                        Console.WriteLine("Estado actual: ");
+                                                        Console.WriteLine();
+                                                        Console.WriteLine("Estado Actual: " + Documentos[indicePaquete].Estado);
                                                         while (true)
                                                         {
 
                                                             int opcionEstado = ValidacionEntradas("Seleccione nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n >", 1, 4, "Opción invalida");
                                                             if (opcionEstado == 1)
                                                             {
-                                                                if (Documentos[codigoPaqueteBuscar].Estado == "Pendiente")
+                                                                if (Documentos[indicePaquete].Estado == "Pendiente")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    Documentos[codigoPaqueteBuscar].ActualizarEstado("Pendiente");
+                                                                    Documentos[indicePaquete].ActualizarEstado("Pendiente");
                                                                     break;
                                                                 }
                                                             }
                                                             else if (opcionEstado == 2)
                                                             {
-                                                                if (Documentos[codigoPaqueteBuscar].Estado == "En transito")
+                                                                if (Documentos[indicePaquete].Estado == "En transito")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    Documentos[codigoPaqueteBuscar].ActualizarEstado("En transito");
+                                                                    Documentos[indicePaquete].ActualizarEstado("En transito");
                                                                     break;
                                                                 }
 
                                                             }
                                                             else if (opcionEstado == 3)
                                                             {
-                                                                if (Documentos[codigoPaqueteBuscar].Estado == "Entregado")
+                                                                if (Documentos[indicePaquete].Estado == "Entregado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    Documentos[codigoPaqueteBuscar].ActualizarEstado("Entregado");
+                                                                    Documentos[indicePaquete].ActualizarEstado("Entregado");
                                                                     break;
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                if (Documentos[codigoPaqueteBuscar].Estado == "Cancelado")
+                                                                if (Documentos[indicePaquete].Estado == "Cancelado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    Documentos[codigoPaqueteBuscar].ActualizarEstado("Cancelado");
+                                                                    Documentos[indicePaquete].ActualizarEstado("Cancelado");
                                                                     break;
                                                                 }
                                                             }
@@ -1487,9 +1621,9 @@ namespace GoXelaDelivery
                                                 break;
                                             case 2:
                                                 {
-                                                    Console.WriteLine();
+                                                    Console.Clear();
 
-                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado") - 1;
+                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
                                                     int indicePaquete = -1;
                                                     for (int i = 0; i < PaquetesEstandar.Count; i++)
                                                     {
@@ -1500,7 +1634,6 @@ namespace GoXelaDelivery
                                                         }
                                                     }
 
-                                                    Console.WriteLine("Estado Actual: " + PaquetesEstandar[codigoPaqueteBuscar].Estado);
 
                                                     if (indicePaquete == -1)
                                                     {
@@ -1511,57 +1644,58 @@ namespace GoXelaDelivery
                                                     else
                                                     {
                                                         Console.WriteLine("Paquete encontrado");
-                                                        Console.WriteLine("Estado actual: ");
+                                                        Console.WriteLine("Estado Actual: " + PaquetesEstandar[indicePaquete].Estado);
+
                                                         while (true)
                                                         {
 
                                                             int opcionEstado = ValidacionEntradas("Seleccione nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n >", 1, 4, "Opción invalida");
                                                             if (opcionEstado == 1)
                                                             {
-                                                                if (PaquetesEstandar[codigoPaqueteBuscar].Estado == "Pendiente")
+                                                                if (PaquetesEstandar[indicePaquete].Estado == "Pendiente")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesEstandar[codigoPaqueteBuscar].ActualizarEstado("Pendiente");
+                                                                    PaquetesEstandar[indicePaquete].ActualizarEstado("Pendiente");
                                                                     break;
                                                                 }
                                                             }
                                                             else if (opcionEstado == 2)
                                                             {
-                                                                if (PaquetesEstandar[codigoPaqueteBuscar].Estado == "En transito")
+                                                                if (PaquetesEstandar[indicePaquete].Estado == "En transito")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesEstandar[codigoPaqueteBuscar].ActualizarEstado("En transito");
+                                                                    PaquetesEstandar[indicePaquete].ActualizarEstado("En transito");
                                                                     break;
                                                                 }
 
                                                             }
                                                             else if (opcionEstado == 3)
                                                             {
-                                                                if (PaquetesEstandar[codigoPaqueteBuscar].Estado == "Entregado")
+                                                                if (PaquetesEstandar[indicePaquete].Estado == "Entregado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesEstandar[codigoPaqueteBuscar].ActualizarEstado("Entregado");
+                                                                    PaquetesEstandar[indicePaquete].ActualizarEstado("Entregado");
                                                                     break;
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                if (PaquetesEstandar[codigoPaqueteBuscar].Estado == "Cancelado")
+                                                                if (PaquetesEstandar[indicePaquete].Estado == "Cancelado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesEstandar[codigoPaqueteBuscar].ActualizarEstado("Cancelado");
+                                                                    PaquetesEstandar[indicePaquete].ActualizarEstado("Cancelado");
                                                                     break;
                                                                 }
                                                             }
@@ -1574,9 +1708,9 @@ namespace GoXelaDelivery
                                                 break;
                                             case 3:
                                                 {
-                                                    Console.WriteLine();
+                                                    Console.Clear();
 
-                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado") - 1;
+                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
                                                     int indicePaquete = -1;
                                                     for (int i = 0; i < Paquetes.Count; i++)
                                                     {
@@ -1587,7 +1721,6 @@ namespace GoXelaDelivery
                                                         }
                                                     }
 
-                                                    Console.WriteLine("Estado Actual: " + PaquetesFragiles[codigoPaqueteBuscar].Estado);
 
                                                     if (indicePaquete == -1)
                                                     {
@@ -1598,57 +1731,58 @@ namespace GoXelaDelivery
                                                     else
                                                     {
                                                         Console.WriteLine("Paquete encontrado");
-                                                        Console.WriteLine("Estado actual: ");
+                                                        Console.WriteLine("Estado Actual: " + PaquetesFragiles[indicePaquete].Estado);
+
                                                         while (true)
                                                         {
 
                                                             int opcionEstado = ValidacionEntradas("Seleccione nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n >", 1, 4, "Opción invalida");
                                                             if (opcionEstado == 1)
                                                             {
-                                                                if (PaquetesFragiles[codigoPaqueteBuscar].Estado == "Pendiente")
+                                                                if (PaquetesFragiles[indicePaquete].Estado == "Pendiente")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesFragiles[codigoPaqueteBuscar].ActualizarEstado("Pendiente");
+                                                                    PaquetesFragiles[indicePaquete].ActualizarEstado("Pendiente");
                                                                     break;
                                                                 }
                                                             }
                                                             else if (opcionEstado == 2)
                                                             {
-                                                                if (PaquetesFragiles[codigoPaqueteBuscar].Estado == "En transito")
+                                                                if (PaquetesFragiles[indicePaquete].Estado == "En transito")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesFragiles[codigoPaqueteBuscar].ActualizarEstado("En transito");
+                                                                    PaquetesFragiles[indicePaquete].ActualizarEstado("En transito");
                                                                     break;
                                                                 }
 
                                                             }
                                                             else if (opcionEstado == 3)
                                                             {
-                                                                if (PaquetesFragiles[codigoPaqueteBuscar].Estado == "Entregado")
+                                                                if (PaquetesFragiles[indicePaquete].Estado == "Entregado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesFragiles[codigoPaqueteBuscar].ActualizarEstado("Entregado");
+                                                                    PaquetesFragiles[indicePaquete].ActualizarEstado("Entregado");
                                                                     break;
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                if (PaquetesFragiles[codigoPaqueteBuscar].Estado == "Cancelado")
+                                                                if (PaquetesFragiles[indicePaquete].Estado == "Cancelado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    PaquetesFragiles[codigoPaqueteBuscar].ActualizarEstado("Cancelado");
+                                                                    PaquetesFragiles[indicePaquete].ActualizarEstado("Cancelado");
                                                                     break;
                                                                 }
                                                             }
@@ -1661,9 +1795,9 @@ namespace GoXelaDelivery
                                                 break;
                                             case 4:
                                                 {
-                                                    Console.WriteLine();
+                                                    Console.Clear();
 
-                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado") - 1;
+                                                    int codigoPaqueteBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
                                                     int indicePaquete = -1;
                                                     for (int i = 0; i < ProductosRefrigerados.Count; i++)
                                                     {
@@ -1674,7 +1808,6 @@ namespace GoXelaDelivery
                                                         }
                                                     }
 
-                                                    Console.WriteLine("Estado Actual: " + ProductosRefrigerados[codigoPaqueteBuscar].Estado);
 
                                                     if (indicePaquete == -1)
                                                     {
@@ -1685,57 +1818,58 @@ namespace GoXelaDelivery
                                                     else
                                                     {
                                                         Console.WriteLine("Paquete encontrado");
-                                                        Console.WriteLine("Estado actual: ");
+                                                        Console.WriteLine("Estado Actual: " + ProductosRefrigerados[indicePaquete].Estado);
+
                                                         while (true)
                                                         {
 
                                                             int opcionEstado = ValidacionEntradas("Seleccione nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n >", 1, 4, "Opción invalida");
                                                             if (opcionEstado == 1)
                                                             {
-                                                                if (ProductosRefrigerados[codigoPaqueteBuscar].Estado == "Pendiente")
+                                                                if (ProductosRefrigerados[indicePaquete].Estado == "Pendiente")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    ProductosRefrigerados[codigoPaqueteBuscar].ActualizarEstado("Pendiente");
+                                                                    ProductosRefrigerados[indicePaquete].ActualizarEstado("Pendiente");
                                                                     break;
                                                                 }
                                                             }
                                                             else if (opcionEstado == 2)
                                                             {
-                                                                if (ProductosRefrigerados[codigoPaqueteBuscar].Estado == "En transito")
+                                                                if (ProductosRefrigerados[indicePaquete].Estado == "En transito")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    ProductosRefrigerados[codigoPaqueteBuscar].ActualizarEstado("En transito");
+                                                                    ProductosRefrigerados[indicePaquete].ActualizarEstado("En transito");
                                                                     break;
                                                                 }
 
                                                             }
                                                             else if (opcionEstado == 3)
                                                             {
-                                                                if (ProductosRefrigerados[codigoPaqueteBuscar].Estado == "Entregado")
+                                                                if (ProductosRefrigerados[indicePaquete].Estado == "Entregado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    ProductosRefrigerados[codigoPaqueteBuscar].ActualizarEstado("Entregado");
+                                                                    ProductosRefrigerados[indicePaquete].ActualizarEstado("Entregado");
                                                                     break;
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                if (ProductosRefrigerados[codigoPaqueteBuscar].Estado == "Cancelado")
+                                                                if (ProductosRefrigerados[indicePaquete].Estado == "Cancelado")
                                                                 {
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
                                                                 {
-                                                                    ProductosRefrigerados[codigoPaqueteBuscar].ActualizarEstado("Cancelado");
+                                                                    ProductosRefrigerados[indicePaquete].ActualizarEstado("Cancelado");
                                                                     break;
                                                                 }
                                                             }
@@ -1750,7 +1884,6 @@ namespace GoXelaDelivery
                                                 break;
                                         }
                                     } while (opcionEstadoPaquete != 5);
-                                    
 
                                     break;
                                 case 3:
@@ -1758,21 +1891,108 @@ namespace GoXelaDelivery
                                     Console.WriteLine("Calculo de tarifa");
                                     Console.WriteLine();
 
-
                                     break;
                                 case 4:
                                     Console.Clear();
-                                    foreach (Paquete paquete in Paquetes)
+                                    Console.WriteLine("Mostrar información");
+                                    int opcionMostrar;
+                                    do
                                     {
-                                        paquete.MostrarInformacion();
-                                        Console.WriteLine();
-                                    }
-                                    Console.ReadKey();
+                                        Console.Clear();
+                                        opcionMostrar = ValidacionEntradas("Seleccione tipo de paquete: \n1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        switch (opcionMostrar)
+                                        {
+                                            case 1:
+                                                Console.Clear();
+                                                if (Documentos.Count == 0)
+                                                {
+                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    Console.ReadKey();
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Documentos: ");
+                                                    Console.WriteLine();
+                                                    foreach (Documento documento in Documentos)
+                                                    {
+                                                        documento.MostrarInformacion();
+                                                        Console.WriteLine();
+
+                                                    }
+
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 2:
+                                                Console.Clear();
+                                                if (PaquetesEstandar.Count == 0)
+                                                {
+                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    Console.ReadKey();
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Paquetes estandar: ");
+                                                    Console.WriteLine();
+                                                    foreach (PaqueteEstandar paqueteEstandar in PaquetesEstandar)
+                                                    {
+                                                        paqueteEstandar.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 3:
+                                                Console.Clear();
+                                                if (PaquetesFragiles.Count == 0)
+                                                {
+                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    Console.ReadKey();
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Paquetes fragiles: ");
+                                                    Console.WriteLine();
+                                                    foreach (PaqueteFragil paqueteFragil in PaquetesFragiles)
+                                                    {
+                                                        paqueteFragil.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 4:
+                                                Console.Clear();
+                                                if (ProductosRefrigerados.Count == 0)
+                                                {
+                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    Console.ReadKey();
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Productos refrigerados: ");
+                                                    Console.WriteLine();
+                                                    foreach (ProductoRefrigerado productoRefrigerado in ProductosRefrigerados)
+                                                    {
+                                                        productoRefrigerado.MostrarInformacion();
+                                                        Console.WriteLine();
+                                                    }
+                                                }
+                                                Console.ReadKey();
+                                                break;
+                                            case 5:
+                                                break;
+                                        }
+                                    } while (opcionMostrar != 5);
                                     break;
                                 case 5:
                                     break;
                             }
-                        } while (opcionPaquete != 3);
+                        } while (opcionPaquete != 5);
 
                         break;
                     case 5:
@@ -1782,8 +2002,103 @@ namespace GoXelaDelivery
                         break;
                     case 6:
                         Console.Clear();
+                        Console.WriteLine("Gestión de incidencias");
+                        int opcionMenuIncidencia;
+                        do
+                        {
+                            Console.Clear();    
+                            opcionMenuIncidencia = ValidacionEntradas("1. Registrar incidencia\n2. Mostrar información de incidencias\n3. Volver al menu principal\n>", 1, 3, "Opción no valida");
+                            switch (opcionMenuIncidencia)
+                            {
+                                case 1:
+                                    int tipoPaqueteIncidencia;
+                                    int codigoPaqueteIncidencia = IncidenciasList.Count + 1;
+                                    int codigoEntregaBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
+                                    int indiceEntrega = -1;
+                                    for (int i = 0; i < Entregass.Count; i++)
+                                    {
+                                        if (codigoEntregaBuscar == Entregass[i].Codigo)
+                                        {
+                                            indiceEntrega = i;
+                                            break;
+                                        }
+                                    }
+                                    if (indiceEntrega == -1)
+                                    {
+                                        Console.WriteLine("Paquete no encontrado");
+                                        Console.ReadKey();
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        string tipoIndicenaciaString;
+                                        int tipoIncidencia = ValidacionEntradas("Seleccione tipo de incidencia: \n1. Retraso\n2. Perdido\n3. Dañado\n4. Cancelado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        if (tipoIncidencia == 1)
+                                        {
+                                            tipoIndicenaciaString = "Retraso";
+                                        }
+                                        else if (tipoIncidencia == 2)
+                                        {
+                                            tipoIndicenaciaString = "Perdido";
+                                        }
+                                        else if (tipoIncidencia == 3)
+                                        {
+                                            tipoIndicenaciaString = "Dañado";
+                                        }
+                                        else if (tipoIncidencia == 4)
+                                        {
+                                            tipoIndicenaciaString = "Cancelado";
+                                        }
+                                        else
+                                        {
+                                            tipoIndicenaciaString = "";
+                                        }
 
-                        Console.ReadKey();
+                                        Console.Write("Ingrese descripción: ");
+                                        string descripcion = Console.ReadLine();
+                                        string estadoIncidencia;
+                                        int estadoIncidenciaOpcion = ValidacionEntradas("Seleccione estado de incidencia: \n1. Pendiente\n2. En proceso\n3. Resuelto\n>", 1, 2, "Opción no valida");
+                                        if (estadoIncidenciaOpcion == 1)
+                                        {
+                                            estadoIncidencia = "Pendiente";
+
+                                        }
+                                        else if (estadoIncidenciaOpcion == 2)
+                                        {
+                                            estadoIncidencia = "En proceso";
+                                        }
+                                        else
+                                        {
+                                            estadoIncidencia = "Resuelto";
+                                        }
+                                        Console.Write("Acción tomada: ");
+                                        string accionTomada = Console.ReadLine();
+                                        Incidencias nuevaIncidencia = new Incidencias(codigoPaqueteIncidencia, tipoIndicenaciaString, descripcion, DateTime.Now, estadoIncidencia, accionTomada);
+                                        IncidenciasList.Add(nuevaIncidencia);
+
+                                        Entregass[indiceEntrega].AgregarNuevaIncidencia(nuevaIncidencia);
+                                        Console.WriteLine("Incidencia nueva registrada exitosamente!");
+                                        Console.ReadKey();
+                                    }
+                                    break;
+                                case 2:
+                                    if(IncidenciasList.Count == 0)
+                                    {
+                                        Console.WriteLine("Sin incidencias registradas");
+                                    }
+                                    else
+                                    {
+                                        foreach (Incidencias incidencia in IncidenciasList)
+                                        {
+                                            incidencia.MostrarInformacion();
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                    break;
+                                case 3:
+                                    break;
+                            }
+                        } while (opcionMenuIncidencia != 3);
                         break;
                     case 7:
                         Console.Clear();
