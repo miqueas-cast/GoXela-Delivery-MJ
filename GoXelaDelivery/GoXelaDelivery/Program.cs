@@ -1162,8 +1162,20 @@ namespace GoXelaDelivery
                         break;
                     case 5:
                         Console.Clear();
+                        int option, entregasPendientes = 0, entregasCumplidas = 0, entregas = 0;
+                        string codigo;
+                        do
+                        {
+                            Console.WriteLine("GESTIÓN DE ENTREGAS\n1. Generar nueva entrega\n2. Ver entregas pendientes\n3. Ver entregas cumplidas\n4. Buscar entrega específica\n5. Mostrar total de entregas\n6. Actualizar estado de entrega\n7. Regresar\nIngrese una opción:");
+                            option = ValidarEntero();
+                            switch (option)
+                            {
+                                case 1:
 
-                        Console.ReadKey();
+                                    break;
+                            }
+                            Console.ReadKey();
+                        } while (option != 7);
                         break;
                     case 6:
                         Console.Clear();
@@ -1246,7 +1258,29 @@ namespace GoXelaDelivery
             }
             return false;
         }
-
+        static int ValidarEntero()
+        {
+            int dato;
+            do
+            {
+                if (!int.TryParse(Console.ReadLine(), out dato))
+                {
+                    Console.WriteLine("Error: el dato debe ser un número\nIntente nuevamente");
+                }
+                else
+                {
+                    if (dato < 0)
+                    {
+                        Console.WriteLine("Error: el número debe ser positivo");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            } while (true);
+            return dato;
+        }
 
     }
 }
