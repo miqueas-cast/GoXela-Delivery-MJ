@@ -19,17 +19,35 @@ namespace GoXelaDelivery
         public string Telefono
         {
             get { return telefono; }
-            set { telefono = value; }
+            set
+            {
+                if (value != "")
+                {
+                    telefono = value;
+                }
+            }
         }
         public string NombreCompleto
         {
             get { return nombreCompleto; }
-            set { nombreCompleto = value; }
+            set
+            {
+                if (value != "")
+                {
+                    nombreCompleto = value;
+                }
+            }
         }
         public int Codigo
         {
             get { return codigo; }
-            set { codigo = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    codigo = value;
+                }
+            }
         }
         public Persona(int codigo, string nombreCompleto, string telefono)
         {
@@ -53,31 +71,62 @@ namespace GoXelaDelivery
         public int CantidadEntreas
         {
             get { return cantidadEntregas; }
-            set { cantidadEntregas = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    cantidadEntregas = value;
+                }
+
+            }
         }
 
         public int CalificacionEntregas
         {
             get { return calificacionEntregas; }
-            set { calificacionEntregas = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    calificacionEntregas = value;
+                }
+            }
         }
 
         public string Disponibilidad
         {
             get { return disponibilidad; }
-            set { disponibilidad = value; }
+            set
+            {
+                if (value != "")
+                {
+                    disponibilidad = value;
+                }
+            }
         }
 
         public string TipoLicencia
         {
             get { return tipoLicencia; }
-            set { tipoLicencia = value; }
+            set
+            {
+                if (value != "")
+                {
+                    tipoLicencia = value;
+                }
+            }
         }
 
         public string NumeroLicencia
         {
             get { return numeroLicencia; }
-            set { numeroLicencia = value; }
+            set
+            {
+                if (value != "")
+                {
+                    numeroLicencia = value;
+                }
+            }
         }
         public Repartidor(int codigo, string nombreCompleto, string telefono, string numeroLicencia, string tipoLicencia, string disponibilidad, int cantidadEntregas, int calificacionEntregas)
             : base(codigo, nombreCompleto, telefono)
@@ -101,7 +150,7 @@ namespace GoXelaDelivery
         }
         public void actualizarDisponibilidad(string nuevoEstado)
         {
-            Disponibilidad = nuevoEstado; 
+            Disponibilidad = nuevoEstado;
         }
         public void ActualizarEntregas(int nuevasEntregas)
         {
@@ -117,19 +166,38 @@ namespace GoXelaDelivery
         public int CantidadSolicitudes
         {
             get { return cantidadSolicitudes; }
-            set { cantidadSolicitudes = value; }
+            set
+            {
+
+                if (value > 0)
+                {
+                    cantidadSolicitudes = value;
+                }
+            }
         }
 
         public string Direccion
         {
             get { return direccion; }
-            set { direccion = value; }
+            set
+            {
+                if (value != "")
+                {
+                    direccion = value;
+                }
+            }
         }
 
         public string CorreoElectronico
         {
             get { return correoElectronico; }
-            set { correoElectronico = value; }
+            set
+            {
+                if (value != "" && value.Contains("@"))
+                {
+                    correoElectronico = value;
+                }
+            }
         }
         public Cliente(int codigo, string nombreCompleto, string telefono, string correoElectronico, string direccion, int cantidadSolicitudes)
             : base(codigo, nombreCompleto, telefono)
@@ -167,7 +235,14 @@ namespace GoXelaDelivery
         public int Codigo
         {
             get { return codigo; }
-            set { codigo = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    codigo = value;
+
+                }
+            }
         }
         public double Total
         {
@@ -178,31 +253,61 @@ namespace GoXelaDelivery
         public double Descuentos
         {
             get { return descuentos; }
-            set { descuentos = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    descuentos = value;
+                }
+            }
         }
 
         public double Recargos
         {
             get { return recargos; }
-            set { recargos = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    recargos = value;
+                }
+            }
         }
 
         public double TarifaBase
         {
             get { return tarifaBase; }
-            set { tarifaBase = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    tarifaBase = value;
+                }
+            }
         }
 
         public string Estado
         {
             get { return estado; }
-            set { estado = value; }
+            set
+            {
+                if (value != "")
+                {
+                    estado = value;
+                }
+            }
         }
 
         public string TipoServicio
         {
             get { return tipoServicio; }
-            set { tipoServicio = value; }
+            set
+            {
+                if (value != "")
+                {
+                    tipoServicio = value;
+                }
+            }
         }
 
         public double DistanciaEstimada
@@ -214,19 +319,37 @@ namespace GoXelaDelivery
         public string DireccionDestino
         {
             get { return direccionDestino; }
-            set { direccionDestino = value; }
+            set
+            {
+                if (value != "")
+                {
+                    direccionDestino = value;
+                }
+            }
         }
 
         public string DireccionOrigen
         {
             get { return direccionOrigen; }
-            set { direccionOrigen = value; }
+            set
+            {
+                if (value != "")
+                {
+                    direccionOrigen = value;
+                }
+            }
         }
 
         public DateTime Fecha
         {
             get { return fecha; }
-            set { fecha = value; }
+            set
+            {
+                if (value >= DateTime.Now)
+                {
+                    fecha = value;
+                }
+            }
         }
         public Entrega(DateTime fecha, int codigo, string direccionOrigen, string direccionDestino, double distanciaEstimada, string tipoServicio, string estado, double tarifaBase, double recargos, double descuentos, double total)
         {
@@ -257,36 +380,72 @@ namespace GoXelaDelivery
         public double CostoOperativo
         {
             get { return costoOperativo; }
-            set { costoOperativo = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    costoOperativo = value;
+                }
+            }
         }
         public string Estado
         {
             get { return estado; }
-            set { estado = value; }
+            set
+            {
+                if (value != "")
+                {
+                    estado = value;
+                }
+            }
         }
 
         public double CapacidadMaximaCarga
         {
             get { return capacidadMaximaCarga; }
-            set { capacidadMaximaCarga = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    capacidadMaximaCarga = value;
+                }
+            }
         }
 
         public string Modelo
         {
             get { return modelo; }
-            set { modelo = value; }
+            set
+            {
+                if (value != "")
+                {
+                    modelo = value;
+                }
+            }
         }
 
         public string Marca
         {
             get { return marca; }
-            set { marca = value; }
+            set
+            {
+                if (value != "")
+                {
+                    marca = value;
+                }
+            }
         }
 
         public int Codigo
         {
             get { return codigo; }
-            set { codigo = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    codigo = value;
+                }
+            }
         }
         public Vehiculo(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo)
         {
@@ -306,7 +465,13 @@ namespace GoXelaDelivery
         public string Placa
         {
             get { return placa; }
-            set { placa = value; }
+            set
+            {
+                if (value != "")
+                {
+                    placa = value;
+                }
+            }
         }
         public Automovil(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo, string placa)
             : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
@@ -332,7 +497,13 @@ namespace GoXelaDelivery
         public string Placa
         {
             get { return placa; }
-            set { placa = value; }
+            set
+            {
+                if (value != "")
+                {
+                    placa = value;
+                }
+            }
         }
         public Moticicleta(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo, string placa)
             : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
@@ -380,43 +551,85 @@ namespace GoXelaDelivery
         public string Estado
         {
             get { return estado; }
-            set { estado = value; }
+            set
+            {
+                if (value != "")
+                {
+                    estado = value;
+                }
+            }
         }
 
         public string DireccionDestino
         {
             get { return direccionDestino; }
-            set { direccionDestino = value; }
+            set
+            {
+                if (value != "")
+                {
+                    direccionDestino = value;
+                }
+            }
         }
 
         public string DireccionOrigen
         {
             get { return direccionOrigen; }
-            set { direccionOrigen = value; }
+            set
+            {
+                if (value != "")
+                {
+                    direccionOrigen = value;
+                }
+            }
         }
 
         public double ValorDeclarado
         {
             get { return valorDeclarado; }
-            set { valorDeclarado = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    valorDeclarado = value;
+                }
+            }
         }
 
         public double Peso
         {
             get { return peso; }
-            set { peso = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    peso = value;
+                }
+            }
         }
 
         public string Descripcion
         {
             get { return descripcion; }
-            set { descripcion = value; }
+            set
+            {
+                if (value != "")
+                {
+                    descripcion = value;
+                }
+            }
         }
 
         public int Codigo
         {
             get { return codigo; }
-            set { codigo = value; }
+            set
+            {
+                if (value > 0)
+                {
+                    codigo = value;
+                }
+            }
         }
         public Paquete(int codigo, string descripcion, double peso, double valorDeclarado, string direccionOrigen, string direccionDestino, string estado)
         {
@@ -505,7 +718,7 @@ namespace GoXelaDelivery
             {
                 Console.Clear();
                 Console.WriteLine("========================================\r\n GOXELA DELIVERY\r\n========================================\r\n1. Gestión de clientes\r\n2. Gestión de repartidores\r\n3. Gestión de vehículos\r\n4. Gestión de paquetes\r\n5. Gestión de entregas\r\n6. Gestión de incidencias\r\n7. Reportes\r\n8. Salir");
-                opcion = ValidacionEntradas("Ingrese una opción: ",1, 8, "Opción fuera del rango");
+                opcion = ValidacionEntradas("Ingrese una opción: ", 1, 8, "Opción fuera del rango");
                 switch (opcion)
                 {
                     case 1:
@@ -515,13 +728,13 @@ namespace GoXelaDelivery
                         {
                             Console.Clear();
                             Console.WriteLine("1. Registrar\n2. Consultar\n3. Actualizar\n4. Mostrar Información\n5. Volver al menu principal");
-                            opcionCliente = ValidacionEntradas("Ingrese una opción: ",1,5, "Opción fuera del rango");
+                            opcionCliente = ValidacionEntradas("Ingrese una opción: ", 1, 5, "Opción fuera del rango");
                             switch (opcionCliente)
                             {
                                 case 1:
                                     Console.Clear();
-                                    int contadorCodigo = Clientes.Count +1;
-                                    
+                                    int contadorCodigo = Clientes.Count + 1;
+
                                     Console.Write("Ingrese nombre cliente: ");
                                     string nombre = Console.ReadLine();
                                     string numeroTelefono;
@@ -530,7 +743,7 @@ namespace GoXelaDelivery
                                         Console.Write("Ingrese número de telefono: ");
                                         numeroTelefono = Console.ReadLine();
 
-                                        if(ValidarTelefono(numeroTelefono))
+                                        if (ValidarTelefono(numeroTelefono))
                                         {
                                             break;
                                         }
@@ -540,7 +753,7 @@ namespace GoXelaDelivery
                                         }
                                     }
                                     string correoCliente;
-                                    while(true)
+                                    while (true)
                                     {
                                         Console.Write("Ingrese correo electrónico: ");
                                         correoCliente = Console.ReadLine();
@@ -557,7 +770,7 @@ namespace GoXelaDelivery
                                     string direccion = Console.ReadLine();
 
 
-                                    int cantidadSolicitudes = ValidacionEntradas("Ingrese cantidad de solicitudes: ",1, 100, "Cantidad de solicitudes no permitida" );
+                                    int cantidadSolicitudes = ValidacionEntradas("Ingrese cantidad de solicitudes: ", 1, 100, "Cantidad de solicitudes no permitida");
 
                                     Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoCliente, direccion, cantidadSolicitudes));
 
@@ -570,7 +783,7 @@ namespace GoXelaDelivery
                                     break;
                                 case 3:
                                     Console.Clear();
-                                    
+
                                     Console.ReadKey();
                                     break;
                                 case 4:
@@ -612,7 +825,7 @@ namespace GoXelaDelivery
                                         Console.Write("Ingrese número de telefono: ");
                                         numeroRepartidor = Console.ReadLine();
                                         if (ValidarTelefono(numeroRepartidor))
-                                        { 
+                                        {
                                             break;
                                         }
                                         else
@@ -643,17 +856,17 @@ namespace GoXelaDelivery
                                             tipoLicencia = "C";
                                             break;
                                         }
-                                        else if(tipoLicenciaa == 1)
+                                        else if (tipoLicenciaa == 1)
                                         {
                                             tipoLicencia = "B";
                                             break;
                                         }
-                                        else if(tipoLicenciaa == 3)
+                                        else if (tipoLicenciaa == 3)
                                         {
                                             tipoLicencia = "A";
                                             break;
                                         }
-                                        else if(tipoLicenciaa == 4)
+                                        else if (tipoLicenciaa == 4)
                                         {
                                             tipoLicencia = "M";
                                             break;
@@ -695,8 +908,8 @@ namespace GoXelaDelivery
                                     Console.WriteLine();
                                     Console.Write("Ingrese nombre de repartidor: ");
                                     string repartidor = Console.ReadLine();
-                                    int indiceRep= -1;
-                                    for(int i = 0; i< Repartidores.Count; i++)
+                                    int indiceRep = -1;
+                                    for (int i = 0; i < Repartidores.Count; i++)
                                     {
                                         if (Repartidores[i].NombreCompleto == repartidor)
                                         {
@@ -704,7 +917,7 @@ namespace GoXelaDelivery
                                             break;
                                         }
                                     }
-                                    if(indiceRep != -1)
+                                    if (indiceRep != -1)
                                     {
                                         Console.WriteLine();
                                         Console.WriteLine("Repartidor encontrado");
@@ -717,7 +930,7 @@ namespace GoXelaDelivery
                                             int estadoRepartidorNuevo = ValidacionEntradas("Estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
                                             if (estadoRepartidorNuevo == 1)
                                             {
-                                                if(Repartidores[indiceRep].Disponibilidad == "Disponible")
+                                                if (Repartidores[indiceRep].Disponibilidad == "Disponible")
                                                 {
                                                     Console.WriteLine("No puede asignarse el mismo estado!");
                                                 }
@@ -757,7 +970,7 @@ namespace GoXelaDelivery
                                         Console.WriteLine("Estado cambiado exitosamente!");
                                         Console.ReadKey();
                                         break;
-                                        
+
                                     }
                                     else
                                     {
@@ -776,7 +989,7 @@ namespace GoXelaDelivery
                                     break;
                                 case 4:
                                     Console.Clear();
-                                    foreach(Repartidor repartidorSin in Repartidores)
+                                    foreach (Repartidor repartidorSin in Repartidores)
                                     {
                                         repartidorSin.MostrarInformacion();
                                         Console.WriteLine();
@@ -786,7 +999,7 @@ namespace GoXelaDelivery
                                 case 5:
                                     break;
                             }
-                        }while(opcionRepartidor != 5);
+                        } while (opcionRepartidor != 5);
                         Console.ReadKey();
                         break;
                     case 3:
@@ -845,7 +1058,7 @@ namespace GoXelaDelivery
                                                 Console.WriteLine();
                                                 Console.WriteLine("Automovil registrado con exito!");
                                                 Console.ReadKey();
-                                                    break;
+                                                break;
                                             case 2:
                                                 Console.Clear();
                                                 int codigoMoticicleta = Motocicletas.Count + 1;
@@ -919,10 +1132,10 @@ namespace GoXelaDelivery
                                             case 4:
                                                 break;
                                         }
-                                    }while (tipoVehiculo != 4) ;
+                                    } while (tipoVehiculo != 4);
                                     break;
                                 case 2:
-                                    
+
                                     int opcionConsultaVehiculo;
                                     do
                                     {
@@ -934,7 +1147,7 @@ namespace GoXelaDelivery
                                         {
                                             case 1:
                                                 Console.Clear();
-                                                foreach(Automovil automovil in Automoviles)
+                                                foreach (Automovil automovil in Automoviles)
                                                 {
                                                     automovil.MostrarInformacion();
                                                     Console.WriteLine();
@@ -943,7 +1156,7 @@ namespace GoXelaDelivery
                                                 break;
                                             case 2:
                                                 Console.Clear();
-                                                foreach(Moticicleta motocicleta in Motocicletas)
+                                                foreach (Moticicleta motocicleta in Motocicletas)
                                                 {
                                                     motocicleta.MostrarInformacion();
                                                     Console.WriteLine();
@@ -952,7 +1165,7 @@ namespace GoXelaDelivery
                                                 break;
                                             case 3:
                                                 Console.Clear();
-                                                foreach(Bicicleta bicicleta in Bicicletas)
+                                                foreach (Bicicleta bicicleta in Bicicletas)
                                                 {
                                                     bicicleta.MostrarInformacion();
                                                     Console.WriteLine();
@@ -967,7 +1180,7 @@ namespace GoXelaDelivery
                                 case 3:
                                     break;
                             }
-                        }while(opcionVehiculo != 3);
+                        } while (opcionVehiculo != 3);
                         break;
                     case 4:
                         Console.Clear();
@@ -1620,7 +1833,7 @@ namespace GoXelaDelivery
                 {
                     Console.WriteLine("Por favor ingrese un número");
                 }
-                else if(valor < min || valor > max)
+                else if (valor < min || valor > max)
                 {
                     Console.WriteLine(errorMensaje);
                     esValido = false;
@@ -1646,13 +1859,13 @@ namespace GoXelaDelivery
         }
         static bool ValidarTelefono(string telefono)
         {
-            if(telefono.Length != 8)
+            if (telefono.Length != 8)
             {
                 return false;
             }
-            foreach(char c in telefono)
+            foreach (char c in telefono)
             {
-                if(!char.IsDigit(c))
+                if (!char.IsDigit(c))
                 {
                     return false;
                 }
@@ -1661,7 +1874,7 @@ namespace GoXelaDelivery
         }
         static bool ValidarCorreoElectronico(string correo)
         {
-           foreach(char c in correo)
+            foreach (char c in correo)
             {
                 if (c == '@')
                 {
