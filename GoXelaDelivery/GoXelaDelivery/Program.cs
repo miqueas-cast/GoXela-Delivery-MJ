@@ -1341,7 +1341,7 @@ namespace GoXelaDelivery
                                                     int codigoDocumento = Documentos.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
-                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 2, "Peso fuera del rango permitido para documento");
+                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 2, "Eror: Peso permitido para documentos: 1kg a 2kg");
                                                     double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
@@ -1386,7 +1386,7 @@ namespace GoXelaDelivery
                                                     int codigoPaqueteEstandar = PaquetesEstandar.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
-                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 50, "Peso fuera del rango permitido para paquete estandar");
+                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 50, "Eror: peso permitido para paquetes estandar 1kg a 50");
                                                     double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
@@ -1430,7 +1430,7 @@ namespace GoXelaDelivery
                                                     int codigoPaqueteFragil = PaquetesFragiles.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
-                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 20, "Peso fuera del rango permitido para paquete estandar");
+                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 20, "Error: peso permitido para paquetes fragiles 1kg a 20kg");
                                                     double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
@@ -1474,7 +1474,7 @@ namespace GoXelaDelivery
                                                     int codigoProductoRefrigerado = ProductosRefrigerados.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
-                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 15, "Peso fuera del rango permitido para producto refigerado");
+                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 15, "Eror: peso permitido para productos refigerados 1kg a 15kg");
                                                     double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
@@ -1528,6 +1528,7 @@ namespace GoXelaDelivery
                                     int opcionEstadoPaquete;
                                     do
                                     {
+                                        Console.Clear();
                                         opcionEstadoPaquete = ValidacionEntradas("1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\n>", 1, 5, "Opción no valida");
                                         switch (opcionEstadoPaquete)
                                         {
@@ -1550,6 +1551,7 @@ namespace GoXelaDelivery
 
                                                     if (indicePaquete == -1)
                                                     {
+                                                        Console.Clear();
                                                         Console.WriteLine("Codigo no encontrado");
                                                         Console.ReadKey();
                                                         break;
@@ -1567,6 +1569,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (Documentos[indicePaquete].Estado == "Pendiente")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1579,6 +1582,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (Documentos[indicePaquete].Estado == "En transito")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1592,6 +1596,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (Documentos[indicePaquete].Estado == "Entregado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1604,6 +1609,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (Documentos[indicePaquete].Estado == "Cancelado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1637,6 +1643,7 @@ namespace GoXelaDelivery
 
                                                     if (indicePaquete == -1)
                                                     {
+                                                        Console.Clear();
                                                         Console.WriteLine("Codigo no encontrado");
                                                         Console.ReadKey();
                                                         break;
@@ -1654,6 +1661,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesEstandar[indicePaquete].Estado == "Pendiente")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1666,6 +1674,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesEstandar[indicePaquete].Estado == "En transito")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1679,6 +1688,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesEstandar[indicePaquete].Estado == "Entregado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1691,6 +1701,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesEstandar[indicePaquete].Estado == "Cancelado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1724,6 +1735,7 @@ namespace GoXelaDelivery
 
                                                     if (indicePaquete == -1)
                                                     {
+                                                        Console.Clear();
                                                         Console.WriteLine("Codigo no encontrado");
                                                         Console.ReadKey();
                                                         break;
@@ -1741,6 +1753,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesFragiles[indicePaquete].Estado == "Pendiente")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1753,6 +1766,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesFragiles[indicePaquete].Estado == "En transito")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1766,6 +1780,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesFragiles[indicePaquete].Estado == "Entregado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1778,6 +1793,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (PaquetesFragiles[indicePaquete].Estado == "Cancelado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1811,6 +1827,7 @@ namespace GoXelaDelivery
 
                                                     if (indicePaquete == -1)
                                                     {
+                                                        Console.Clear();
                                                         Console.WriteLine("Codigo no encontrado");
                                                         Console.ReadKey();
                                                         break;
@@ -1828,6 +1845,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (ProductosRefrigerados[indicePaquete].Estado == "Pendiente")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1840,6 +1858,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (ProductosRefrigerados[indicePaquete].Estado == "En transito")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1853,6 +1872,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (ProductosRefrigerados[indicePaquete].Estado == "Entregado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -1865,6 +1885,7 @@ namespace GoXelaDelivery
                                                             {
                                                                 if (ProductosRefrigerados[indicePaquete].Estado == "Cancelado")
                                                                 {
+                                                                    Console.Clear();
                                                                     Console.WriteLine("No se puede asignar el mismo estado");
                                                                 }
                                                                 else
@@ -2085,6 +2106,8 @@ namespace GoXelaDelivery
                                     if(IncidenciasList.Count == 0)
                                     {
                                         Console.WriteLine("Sin incidencias registradas");
+                                        Console.ReadKey();
+                                        
                                     }
                                     else
                                     {
@@ -2102,6 +2125,78 @@ namespace GoXelaDelivery
                         break;
                     case 7:
                         Console.Clear();
+                        int opcionReportes;
+                        do
+                        {
+                            opcionReportes = ValidacionEntradas("1.Entregas activas.\r\n2. Entregas finalizadas.\r\n3. Entregas canceladas.\r\n4. Entregas con incidencias.\r\n5. Repartidores disponibles.\r\n6. Repartidor con más entregas.\r\n7. Vehículo más utilizado.\r\n8. Cantidad de paquetes por tipo.\r\n9. Total de ingresos.\r\n10.Entrega con mayor costo\n11. Volver al menu pricipal",1,11,"Opción invalida");
+                            switch (opcionReportes)
+                            {
+                                case 1:
+                                    Console.Clear();
+                                    Console.WriteLine("Entregas activas");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 2:
+                                    Console.Clear();
+                                    Console.WriteLine("Entregas finalizadas");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+
+                                    break;
+                                case 3:
+                                    Console.Clear();
+                                    Console.WriteLine("Entregas canceladas");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 4:
+                                    Console.Clear();
+                                    Console.WriteLine("Entregas con incidencias");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 5:
+                                    Console.Clear();
+                                    Console.WriteLine("Repartidores disponibles");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 6:
+                                    Console.Clear();
+                                    Console.WriteLine("Repartidores con mas entregas");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 7:
+                                    Console.Clear();
+                                    Console.WriteLine("Vehiculo más utilizado");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 8:
+                                    Console.Clear();
+                                    Console.WriteLine("Cantidad de paquetes por tipo");
+                                    Console.WriteLine();
+
+                                    Console.ReadKey();
+                                    break;
+                                case 9:
+                                    Console.Clear();
+                                    Console.WriteLine("Total de ingresos");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 10:
+                                    Console.Clear();
+                                    Console.WriteLine("Entrega con mayor costo");
+                                    Console.WriteLine();
+                                    Console.ReadKey();
+                                    break;
+                                case 11:
+                                    break;
+                            }
+                        } while(opcionReportes != 11);
 
                         Console.ReadKey();
                         break;
