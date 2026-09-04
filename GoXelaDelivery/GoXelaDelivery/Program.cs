@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime;
 using System.Runtime.InteropServices;
@@ -803,8 +804,8 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            Console.WriteLine("1. Registrar\n2. Consultar\n3. Actualizar\n4. Mostrar Información\n5. Volver al menu principal");
-                            opcionCliente = ValidacionEntradas("Ingrese una opción: ", 1, 5, "Opción fuera del rango");
+                            Console.WriteLine("1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal");
+                            opcionCliente = ValidacionEntradas("Ingrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionCliente)
                             {
                                 case 1:
@@ -831,48 +832,156 @@ namespace GoXelaDelivery
                                     string correoCliente;
                                     while (true)
                                     {
-                                        Console.Write("Ingrese correo electrónico: ");
+                                        Console.Write("Ingrese su usuario de correo: ");
                                         correoCliente = Console.ReadLine();
-                                        if (ValidarCorreoElectronico(correoCliente))
+                                        if (!string.IsNullOrWhiteSpace(correoCliente) && !correoCliente.Contains("@"))
                                         {
                                             break;
                                         }
-                                        else
-                                        {
-                                            Console.WriteLine("Correo electrónico inválido. Debe contener un '@'.");
-                                        }
+                                        Console.WriteLine("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
                                     }
+                                    int opcionDominio = ValidacionEntradas("Seleccione el dominio de correo electrónico:\n1. @gmail.com\n2. @hotmail.com\n3. @outlook.com\n4. @yahoo.com\n5. @icloud.com\nIngrese una opción: ", 1, 5, "Opción fuera del rango");
+                                    string dominioElegido = "";
+                                    switch (opcionDominio)
+                                    {
+                                        case 1: dominioElegido = "@gmail.com"; break;
+                                        case 2: dominioElegido = "@outlook.com"; break;
+                                        case 3: dominioElegido = "@hotmail.com"; break;
+                                        case 4: dominioElegido = "@yahoo.com"; break;
+                                        case 5: dominioElegido = "@icloud.com"; break;
+                                    }
+
+                                    string correoElectronico = correoCliente + dominioElegido;
+
                                     Console.Write("Ingrese dirección: ");
                                     string direccion = Console.ReadLine();
-
-
-                                    int cantidadSolicitudes = ValidacionEntradas("Ingrese cantidad de solicitudes: ", 1, 100, "Cantidad de solicitudes no permitida");
-
-                                    Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoCliente, direccion, cantidadSolicitudes));
+                                    Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoElectronico, direccion, 0));
 
                                     Console.ReadKey();
                                     break;
                                 case 2:
                                     Console.Clear();
+                                    if(Clientes.Count == 0)
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("Aún no hay clientes registrados");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Clientes registrados: ");
+                                        foreach (Cliente cliente in Clientes)
+                                        {
+                                            cliente.MostrarInformacion();
+                                            Console.WriteLine();
+                                        }
 
+                                    }
                                     Console.ReadKey();
                                     break;
                                 case 3:
                                     Console.Clear();
 
-                                    Console.ReadKey();
+                                    int codigoClienteActualizar = ValidacionEntradas("Ingrese el codigo del cliente: CLI-", 1, int.MaxValue, "Cliente no encontrado");
+                                    int indiceCliente = -1;
+                                    for(int i = 0; i<Clientes.Count; i++)
+                                    {
+                                        if (Clientes[i].Codigo == codigoClienteActualizar)
+                                        {
+                                            indiceCliente = i;
+                                            break;
+                                        }
+                                    }
+                                    if (indiceCliente == -1) 
+                                    {
+                                        Console.WriteLine("Cliente no encontrado");
+                                        Console.ReadKey();
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("Cliente encontrado");
+                                        Console.WriteLine();
+                                        Clientes[indiceCliente].MostrarInformacion();
+                                        Console.WriteLine();
+
+                                        Console.WriteLine("Seleccióne información a cambiar: ");
+                                        int opcionActualizar;
+                                        do
+                                        {
+                                            Console.Clear();
+                                            opcionActualizar = ValidacionEntradas("1. Teléfono\n2. Correo electronico\n3. Dirección\n4. Volver atrás\n>", 1, 4, "Opción no valida");
+                                            switch (opcionActualizar)
+                                            {
+                                                case 1:
+                                                    Console.Clear();
+                                                    while (true)
+                                                    {
+                                                        Console.Write("Ingrese nuevo número de teléfono: ");
+                                                        string nuevoNumeroTelefono = Console.ReadLine();
+                                                        if (ValidarTelefono(nuevoNumeroTelefono))
+                                                        {
+                                                            Console.WriteLine();
+                                                            Clientes[indiceCliente].Telefono = nuevoNumeroTelefono;
+                                                            Console.WriteLine("Numero de teléfono cambiado exitosamente!");
+                                                            Console.ReadKey();
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine("Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
+                                                        }
+                                                    }
+                                                   
+                                                    break;
+                                                case 2:
+                                                    Console.Clear();
+                                                    while (true)
+                                                    {
+                                                        string correoClienteNuevo;
+                                                        while (true)
+                                                        {
+                                                            Console.Write("Ingrese su usuario de correo: ");
+                                                            correoClienteNuevo = Console.ReadLine();
+                                                            if (!string.IsNullOrWhiteSpace(correoClienteNuevo) && !correoClienteNuevo.Contains("@")) 
+                                                            {
+                                                                break;
+                                                            }
+                                                            
+                                                            Console.WriteLine("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
+                                                        }
+                                                        int opcionDominio2 = ValidacionEntradas("Seleccione el dominio de correo electrónico:\n1. @gmail.com\n2. @hotmail.com\n3. @outlook.com\n4. @yahoo.com\n5. @icloud.com\nIngrese una opción: ", 1, 5, "Opción fuera del rango");
+                                                        string dominioElegido2 = "";
+                                                        switch (opcionDominio2)
+                                                        {
+                                                            case 1: dominioElegido2 = "@gmail.com"; break;
+                                                            case 2: dominioElegido2 = "@outlook.com"; break;
+                                                            case 3: dominioElegido2 = "@hotmail.com"; break;
+                                                            case 4: dominioElegido2 = "@yahoo.com"; break;
+                                                            case 5: dominioElegido2 = "@icloud.com"; break;
+                                                        }
+
+                                                        string correoElectronicoNuevo = correoClienteNuevo + dominioElegido2;
+                                                        Clientes[indiceCliente].CorreoElectronico = correoElectronicoNuevo;
+                                                        Console.WriteLine("Correo electronico actualizado con exito!");
+                                                        break;
+                                                    }
+                                                    break;
+                                                case 3:
+                                                    Console.Clear();
+                                                    Console.Write("Ingrese nueva dirección: ");
+                                                    string nuevaDirección = Console.ReadLine();
+                                                    Clientes[indiceCliente].Direccion = nuevaDirección;
+                                                    Console.WriteLine();
+                                                    Console.WriteLine("Nuevo dirección actualizada exitosamente!");
+                                                    break;
+                                                case 4:
+                                                    break;
+                                            }
+                                        } while (opcionActualizar != 4);
+                                    }
                                     break;
                                 case 4:
-                                    Console.Clear();
-                                    Console.WriteLine("Información de cliente: ");
-                                    foreach (Cliente cliente in Clientes)
-                                    {
-                                        cliente.MostrarInformacion();
-                                        Console.WriteLine();
-                                    }
-                                    Console.ReadKey();
-                                    break;
-                                case 5:
                                     break;
                             }
 
@@ -886,8 +995,7 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            Console.WriteLine("1. Registrar \n2. Actualizar disponibilidad\n3. Actualizar entregas\n4. Mostrar Información\n5. Volver al menu principal");
-                            opcionRepartidor = ValidacionEntradas("Ingrese una opción: ", 1, 5, "Opción fuera del rango");
+                            opcionRepartidor = ValidacionEntradas("1. Registrar \n2. Actualizar disponibilidad\n3. Mostrar Información\n4.Volver al menu principal\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionRepartidor)
                             {
                                 case 1:
@@ -973,12 +1081,27 @@ namespace GoXelaDelivery
                                             break;
                                         }
                                     }
-                                    int cantidadEntregas = ValidacionEntradas("Ingrese cantidad de entregas: ", 1, 500, "Cantidad de entregas no valida");
-                                    int calificacion = ValidacionEntradas("Ingrese promedio: ", 1, 5, "Promedio no valido");
-                                    Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, cantidadEntregas, calificacion));
+                                    Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, 0, 0));
                                     Console.ReadKey();
                                     break;
                                 case 2:
+                                    Console.Clear();
+                                    if (Repartidores.Count == 0)
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine("No hay repartidores registrados");
+                                    }
+                                    else
+                                    {
+                                        foreach (Repartidor repartidorSin in Repartidores)
+                                        {
+                                            repartidorSin.MostrarInformacion();
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                    Console.ReadKey();
+                                    break;
+                                case 3:
                                     if (Repartidores.Count == 0)
                                     {
                                         Console.Clear();
@@ -1063,48 +1186,12 @@ namespace GoXelaDelivery
                                         }
                                         Console.ReadKey();
                                     }
-                                    break;
-                                case 3:
-                                    Console.Clear();
-                                    if (Repartidores.Count == 0)
-                                    {
-                                        Console.Clear();
-                                        Console.WriteLine("No hay repartidores registrados");
-                                        Console.ReadKey();
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Actualizar entregas");
-                                        Console.WriteLine();
-                                        Console.Write("Ingrese nombre: ");
-                                        string nombreRep = Console.ReadLine();
-
-                                        Console.ReadKey();
-                                    }
 
                                     break;
                                 case 4:
-                                    Console.Clear();
-                                    if (Repartidores.Count == 0)
-                                    {
-                                        Console.Clear();
-                                        Console.WriteLine("No hay repartidores registrados");
-                                    }
-                                    else
-                                    {
-                                        foreach (Repartidor repartidorSin in Repartidores)
-                                        {
-                                            repartidorSin.MostrarInformacion();
-                                            Console.WriteLine();
-                                        }
-                                    }
-                                    Console.ReadKey();
-                                    break;
-                                case 5:
                                     break;
                             }
-                        } while (opcionRepartidor != 5);
+                        } while (opcionRepartidor != 4);
                         Console.ReadKey();
                         break;
                     case 3:
@@ -1516,7 +1603,6 @@ namespace GoXelaDelivery
                                                 break;
                                         }
 
-
                                     } while (tipoPaquete != 5);
 
                                     break;
@@ -1632,7 +1718,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (ProductosRefrigerados.Count == 0)
                                                 {
-                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    Console.WriteLine("No hay productos registrados");
                                                     Console.ReadKey();
                                                     break;
                                                 }
@@ -1675,7 +1761,6 @@ namespace GoXelaDelivery
                             switch (opcionMenuIncidencia)
                             {
                                 case 1:
-                                    int tipoPaqueteIncidencia;
                                     int codigoPaqueteIncidencia = IncidenciasList.Count + 1;
                                     int codigoEntregaBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Codigo no encontrado");
                                     int indiceEntrega = -1;
@@ -1987,17 +2072,6 @@ namespace GoXelaDelivery
                 }
             }
             return true;
-        }
-        static bool ValidarCorreoElectronico(string correo)
-        {
-            foreach (char c in correo)
-            {
-                if (c == '@')
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }
