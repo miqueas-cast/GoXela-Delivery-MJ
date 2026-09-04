@@ -458,6 +458,12 @@ namespace GoXelaDelivery
             Estado = estado;
             CostoOperativo = costoOperativo;
         }
+        public virtual double CalcularTarifaVehiculo()
+        {
+            double total;
+            total = CostoOperativo;
+            return total;
+        }
 
     }
     class Automovil : Vehiculo
@@ -489,6 +495,10 @@ namespace GoXelaDelivery
             Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga}.kg");
             Console.WriteLine($"Estado: {Estado}");
             Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+        }
+        public override double CalcularTarifaVehiculo()
+        {
+            return CostoOperativo + 50;
         }
 
     }
@@ -522,6 +532,10 @@ namespace GoXelaDelivery
             Console.WriteLine($"Estado: {Estado}");
             Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
         }
+        public override double CalcularTarifaVehiculo()
+        {
+            return CostoOperativo + 25;
+        }
     }
     class Bicicleta : Vehiculo
     {
@@ -538,6 +552,10 @@ namespace GoXelaDelivery
             Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
             Console.WriteLine($"Estado: {Estado}");
             Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+        }
+        public override double CalcularTarifaVehiculo()
+        {
+            return CostoOperativo + 10;
         }
     }
     class Paquete
@@ -659,7 +677,7 @@ namespace GoXelaDelivery
         }
         public virtual void CalcularCostoEnvio()
         {
-            // Implementación del cálculo de costo de envío para paquetes estándar
+            
         }
 
     }
