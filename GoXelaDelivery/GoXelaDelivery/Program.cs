@@ -1933,7 +1933,48 @@ namespace GoXelaDelivery
                                         bool validacion = false;
                                         switch (optionEstado)
                                         {
-
+                                            case 1:
+                                                if(actualizar.Estado=="Solicitado")
+                                                {
+                                                    Console.WriteLine("REPARTIDORES");
+                                                    foreach (Repartidor rep in Repartidores)
+                                                    {
+                                                        if (rep.Disponibilidad == "Disponible")
+                                                        {
+                                                            Console.WriteLine($"Código: REP-{rep.Codigo}\nNombre: {rep.NombreCompleto}");
+                                                        }
+                                                    }
+                                                    Console.Write("Ingrese el código del repartidor que desea asignar: REP-");
+                                                    codigoRepartidor = ValidarEntero();
+                                                    foreach (Repartidor rep in Repartidores)
+                                                    {
+                                                        if(rep.Codigo==codigoRepartidor)
+                                                        {
+                                                            encontrado = true;
+                                                            rep.Disponibilidad = "Asignado";
+                                                            break;
+                                                        }
+                                                    }
+                                                    Console.WriteLine("Repartidor asignado correctamente");
+                                                    Console.WriteLine("\nVEHÍCULOS");
+                                                    Console.WriteLine("Automóviles");
+                                                    foreach(Automovil aut in Automoviles)
+                                                    {
+                                                        aut.MostrarInformacion();
+                                                    }
+                                                    Console.WriteLine("Motocicletas");
+                                                    foreach(Moticicleta moto in Motocicletas)
+                                                    {
+                                                        moto.MostrarInformacion();
+                                                    }
+                                                    Console.WriteLine("Bicicleta");
+                                                    foreach(Bicicleta bici in Bicicletas)
+                                                    {
+                                                        bici.MostrarInformacion();
+                                                    }
+                                                    
+                                                }
+                                                break;
                                         }
                                     }
                                     break;
