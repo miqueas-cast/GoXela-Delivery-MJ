@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GoXelaDelivery
@@ -70,7 +72,7 @@ namespace GoXelaDelivery
         private int calificacionEntregas;
         private int cantidadEntregas;
 
-        public int CantidadEntreas
+        public int CantidadEntregas
         {
             get { return cantidadEntregas; }
             set
@@ -136,19 +138,21 @@ namespace GoXelaDelivery
             NumeroLicencia = numeroLicencia;
             TipoLicencia = tipoLicencia;
             Disponibilidad = disponibilidad;
-            CantidadEntreas = cantidadEntregas;
+            CantidadEntregas = cantidadEntregas;
             CalificacionEntregas = calificacionEntregas;
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: REP-{Codigo}");
-            Console.WriteLine($"Nombre: {NombreCompleto}");
-            Console.WriteLine($"Teléfono: {Telefono}");
-            Console.WriteLine($"Numero de licencia: {numeroLicencia}");
-            Console.WriteLine($"Tipo Licencia: {TipoLicencia}");
-            Console.WriteLine($"Estado: {Disponibilidad}");
-            Console.WriteLine($"Cantidad entregas: {CalificacionEntregas}");
-            Console.WriteLine($"Calificación entregas: {CalificacionEntregas}");
+            Console.WriteLine($"                [ REP-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Nombre:",-25} {NombreCompleto}");
+            Console.WriteLine($"{"Teléfono:",-25} {Telefono}");
+            Console.WriteLine($"{"Número de licencia:",-25} {numeroLicencia}");
+            Console.WriteLine($"{"Tipo Licencia:",-25} {TipoLicencia}");
+            Console.WriteLine($"{"Estado:",-25} {Disponibilidad}");
+            Console.WriteLine($"{"Cantidad entregas:",-25} {CantidadEntregas}");
+            Console.WriteLine($"{"Calificación entregas:",-25} {CalificacionEntregas}");
+            Console.WriteLine("--------------------------------------------\n");
         }
         public void actualizarDisponibilidad(string nuevoEstado)
         {
@@ -156,7 +160,7 @@ namespace GoXelaDelivery
         }
         public void ActualizarEntregas(int nuevasEntregas)
         {
-            CantidadEntreas += nuevasEntregas;
+            CantidadEntregas += nuevasEntregas;
         }
     }
     class Cliente : Persona
@@ -210,12 +214,14 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: CLI-{Codigo}");
-            Console.WriteLine($"Nombre: {NombreCompleto}");
-            Console.WriteLine($"Teléfono: {Telefono}");
-            Console.WriteLine($"Correo electrónico: {CorreoElectronico}");
-            Console.WriteLine($"Dirección: {Direccion}");
-            Console.WriteLine($"Cantidad de solicitudes: {CantidadSolicitudes}");
+            Console.WriteLine($"                [ CLI-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Nombre:",-25} {NombreCompleto}");
+            Console.WriteLine($"{"Teléfono:",-25} {Telefono}");
+            Console.WriteLine($"{"Correo electrónico:",-25} {CorreoElectronico}");
+            Console.WriteLine($"{"Dirección:",-25} {Direccion}");
+            Console.WriteLine($"{"Cantidad de solicitudes:",-25} {CantidadSolicitudes}");
+            Console.WriteLine("--------------------------------------------\n");
         }
 
     }
@@ -490,13 +496,15 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: AUT-{Codigo}");
-            Console.WriteLine($"Placa: {Placa}");
-            Console.WriteLine($"Marca: {Marca}");
-            Console.WriteLine($"Modelo: {Modelo}");
-            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga}.kg");
-            Console.WriteLine($"Estado: {Estado}");
-            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+            Console.WriteLine($"                [ AUT-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Placa:",-28} {Placa}");
+            Console.WriteLine($"{"Marca:",-28} {Marca}");
+            Console.WriteLine($"{"Modelo:",-28} {Modelo}");
+            Console.WriteLine($"{"Capacidad máxima de carga:",-28} {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"{"Estado:",-28} {Estado}");
+            Console.WriteLine($"{"Costo operativo:",-28} Q.{CostoOperativo}");
+            Console.WriteLine("--------------------------------------------\n");
         }
 
     }
@@ -522,13 +530,15 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: MOT-{Codigo}");
-            Console.WriteLine($"Placa: {Placa}");
-            Console.WriteLine($"Marca: {Marca}");
-            Console.WriteLine($"Modelo: {Modelo}");
-            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
-            Console.WriteLine($"Estado: {Estado}");
-            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+            Console.WriteLine($"                [ MOT-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Placa:",-28} {Placa}");
+            Console.WriteLine($"{"Marca:",-28} {Marca}");
+            Console.WriteLine($"{"Modelo:",-28} {Modelo}");
+            Console.WriteLine($"{"Capacidad máxima de carga:",-28} {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"{"Estado:",-28} {Estado}");
+            Console.WriteLine($"{"Costo operativo:",-28} Q.{CostoOperativo}");
+            Console.WriteLine("--------------------------------------------\n");
         }
     }
     class Bicicleta : Vehiculo
@@ -540,12 +550,14 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: BIC-{Codigo}");
-            Console.WriteLine($"Marca: {Marca}");
-            Console.WriteLine($"Modelo: {Modelo}");
-            Console.WriteLine($"Capacidad máxima de carga: {CapacidadMaximaCarga} kg");
-            Console.WriteLine($"Estado: {Estado}");
-            Console.WriteLine($"Costo operativo: Q.{CostoOperativo}");
+            Console.WriteLine($"                [ BIC-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Marca:",-28} {Marca}");
+            Console.WriteLine($"{"Modelo:",-28} {Modelo}");
+            Console.WriteLine($"{"Capacidad máxima de carga:",-28} {CapacidadMaximaCarga} kg");
+            Console.WriteLine($"{"Estado:",-28} {Estado}");
+            Console.WriteLine($"{"Costo operativo:",-28} Q.{CostoOperativo}");
+            Console.WriteLine("--------------------------------------------\n");
         }
     }
     class Paquete
@@ -653,13 +665,15 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: PAQ-{Codigo}");
-            Console.WriteLine($"Descripción: {Descripcion}");
-            Console.WriteLine($"Peso: {Peso} kg");
-            Console.WriteLine($"Valor declarado: Q.{ValorDeclarado}");
-            Console.WriteLine($"Dirección de origen: {DireccionOrigen}");
-            Console.WriteLine($"Dirección de destino: {DireccionDestino}");
-            Console.WriteLine($"Estado: {Estado}");
+            Console.WriteLine($"                [ PAQ-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Descripción:",-25} {Descripcion}");
+            Console.WriteLine($"{"Peso:",-25} {Peso} kg");
+            Console.WriteLine($"{"Valor declarado:",-25} Q.{ValorDeclarado}");
+            Console.WriteLine($"{"Dirección de origen:",-25} {DireccionOrigen}");
+            Console.WriteLine($"{"Dirección de destino:",-25} {DireccionDestino}");
+            Console.WriteLine($"{"Estado:",-25} {Estado}");
+            Console.WriteLine("--------------------------------------------\n");
         }
         public void ActualizarEstado(string nuevoEstado)
         {
@@ -762,12 +776,14 @@ namespace GoXelaDelivery
         }
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: INC-{Codigo}");
-            Console.WriteLine($"Tipo: {Tipo}");
-            Console.WriteLine($"Descripción: {Descripcion}");
-            Console.WriteLine($"Fecha: {Fecha}");
-            Console.WriteLine($"Estado: {Estado}");
-            Console.WriteLine($"Acción tomada: {AccionTomada}");
+            Console.WriteLine($"                [ INC-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Tipo:",-25} {Tipo}");
+            Console.WriteLine($"{"Descripción:",-25} {Descripcion}");
+            Console.WriteLine($"{"Fecha:",-25} {Fecha}");
+            Console.WriteLine($"{"Estado:",-25} {Estado}");
+            Console.WriteLine($"{"Acción tomada:",-25} {AccionTomada}");
+            Console.WriteLine("--------------------------------------------\n");
         }
     }
 
@@ -794,8 +810,7 @@ namespace GoXelaDelivery
             do
             {
                 Console.Clear();
-                Console.WriteLine("========================================\r\n GOXELA DELIVERY\r\n========================================\r\n1. Gestión de clientes\r\n2. Gestión de repartidores\r\n3. Gestión de vehículos\r\n4. Gestión de paquetes\r\n5. Gestión de entregas\r\n6. Gestión de incidencias\r\n7. Reportes\r\n8. Salir");
-                opcion = ValidacionEntradas("Ingrese una opción: ", 1, 8, "Opción fuera del rango");
+                opcion = ValidacionEntradas("========================================\r\n GOXELA DELIVERY\r\n========================================\r\n1. Gestión de clientes\r\n2. Gestión de repartidores\r\n3. Gestión de vehículos\r\n4. Gestión de paquetes\r\n5. Gestión de entregas\r\n6. Gestión de incidencias\r\n7. Reportes\r\n8. Salir\nIngrese una opción: ", 1, 8, "Opción fuera del rango");
                 switch (opcion)
                 {
                     case 1:
@@ -804,8 +819,8 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            Console.WriteLine("1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal");
-                            opcionCliente = ValidacionEntradas("Ingrese una opción: ", 1, 4, "Opción fuera del rango");
+                            
+                            opcionCliente = ValidacionEntradas("CLIENTES\n\n1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal\n\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionCliente)
                             {
                                 case 1:
@@ -814,6 +829,7 @@ namespace GoXelaDelivery
 
                                     Console.Write("Ingrese nombre cliente: ");
                                     string nombre = Console.ReadLine();
+                                    Console.Clear();
                                     string numeroTelefono;
                                     while (true)
                                     {
@@ -826,9 +842,11 @@ namespace GoXelaDelivery
                                         }
                                         else
                                         {
-                                            Console.WriteLine("Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
+                                            Console.Clear();
+                                            MostrarErrorAnimado("Error: Número de teléfono inválido. Debe tener 8 dígitos y solo contener números. ");
                                         }
                                     }
+                                    Console.Clear();
                                     string correoCliente;
                                     while (true)
                                     {
@@ -838,9 +856,9 @@ namespace GoXelaDelivery
                                         {
                                             break;
                                         }
-                                        Console.WriteLine("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
+                                        MostrarErrorAnimado("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
                                     }
-                                    int opcionDominio = ValidacionEntradas("Seleccione el dominio de correo electrónico:\n1. @gmail.com\n2. @hotmail.com\n3. @outlook.com\n4. @yahoo.com\n5. @icloud.com\nIngrese una opción: ", 1, 5, "Opción fuera del rango");
+                                    int opcionDominio = ValidacionEntradas("Seleccione el dominio de correo electrónico:\n1. @gmail.com\n2. @hotmail.com\n3. @outlook.com\n4. @yahoo.com\n5. @icloud.com\n\nIngrese una opción: ", 1, 5, "Opción fuera del rango");
                                     string dominioElegido = "";
                                     switch (opcionDominio)
                                     {
@@ -851,24 +869,40 @@ namespace GoXelaDelivery
                                         case 5: dominioElegido = "@icloud.com"; break;
                                     }
 
+                                    Console.Clear();
                                     string correoElectronico = correoCliente + dominioElegido;
 
                                     Console.Write("Ingrese dirección: ");
                                     string direccion = Console.ReadLine();
-                                    Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoElectronico, direccion, 0));
 
-                                    Console.ReadKey();
+                                    Console.Clear();
+                                    int confirmacionCliente = ValidacionEntradas($"Resumen de datos:\n \nNombre: {nombre}\nNúmero de teléfono: {numeroTelefono}\nCorreo electronico: {correoElectronico}\nDirección: {direccion}\n\n¿Esta seguro que desea agreagar CLI-{contadorCodigo}?\n1. Sí\n2. No\nIngrese una opción: ",1, 2, "Erro: Opción no valida");
+                                    if(confirmacionCliente == 1)
+                                    {
+                                        Console.Clear();
+                                        Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoElectronico, direccion, 0));
+                                        MostrarAnimacionPuntos();
+
+                                    }
+                                    else
+                                    {
+                                        Console.Clear();
+                                        MostrarErrorAnimado("Operación cancelada");
+                                        break;
+                                    }
+ 
                                     break;
                                 case 2:
                                     Console.Clear();
                                     if(Clientes.Count == 0)
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("Aún no hay clientes registrados");
+                                        MostrarErrorAnimado("No hay clientes registrados");
                                     }
                                     else
                                     {
                                         Console.WriteLine("Clientes registrados: ");
+                                        Console.WriteLine();
                                         foreach (Cliente cliente in Clientes)
                                         {
                                             cliente.MostrarInformacion();
@@ -893,7 +927,7 @@ namespace GoXelaDelivery
                                     }
                                     if (indiceCliente == -1) 
                                     {
-                                        Console.WriteLine("Cliente no encontrado");
+                                        MostrarErrorAnimado("Cliente no encontrado");
                                         Console.ReadKey();
                                         break;
                                     }
@@ -903,14 +937,14 @@ namespace GoXelaDelivery
                                         Console.WriteLine("Cliente encontrado");
                                         Console.WriteLine();
                                         Clientes[indiceCliente].MostrarInformacion();
+                                        Console.ReadKey();
                                         Console.WriteLine();
 
-                                        Console.WriteLine("Seleccióne información a cambiar: ");
                                         int opcionActualizar;
                                         do
                                         {
                                             Console.Clear();
-                                            opcionActualizar = ValidacionEntradas("1. Teléfono\n2. Correo electronico\n3. Dirección\n4. Volver atrás\n>", 1, 4, "Opción no valida");
+                                            opcionActualizar = ValidacionEntradas($"\n Seleccióne información a cambiar:\n \n1. Teléfono\n2. Correo electronico\n3. Dirección\n4. Volver atrás\n\nIngrese una opción: ", 1, 4, "Opción no valida");
                                             switch (opcionActualizar)
                                             {
                                                 case 1:
@@ -929,7 +963,8 @@ namespace GoXelaDelivery
                                                         }
                                                         else
                                                         {
-                                                            Console.WriteLine("Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
+                                                            Console.Clear();
+                                                            MostrarErrorAnimado("Error: Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
                                                         }
                                                     }
                                                    
@@ -947,8 +982,8 @@ namespace GoXelaDelivery
                                                             {
                                                                 break;
                                                             }
-                                                            
-                                                            Console.WriteLine("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
+                                                            Console.Clear();
+                                                            MostrarErrorAnimado("Error: Ingrese un usuario válido  y no incluya el símbolo '@'");
                                                         }
                                                         int opcionDominio2 = ValidacionEntradas("Seleccione el dominio de correo electrónico:\n1. @gmail.com\n2. @hotmail.com\n3. @outlook.com\n4. @yahoo.com\n5. @icloud.com\nIngrese una opción: ", 1, 5, "Opción fuera del rango");
                                                         string dominioElegido2 = "";
@@ -985,7 +1020,7 @@ namespace GoXelaDelivery
                                     break;
                             }
 
-                        } while (opcionCliente != 5);
+                        } while (opcionCliente != 4);
 
                         break;
                     case 2:
@@ -995,7 +1030,7 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            opcionRepartidor = ValidacionEntradas("1. Registrar \n2. Actualizar disponibilidad\n3. Mostrar Información\n4.Volver al menu principal\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
+                            opcionRepartidor = ValidacionEntradas("REPARTIDORES\n\n1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal\n\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionRepartidor)
                             {
                                 case 1:
@@ -1003,6 +1038,7 @@ namespace GoXelaDelivery
                                     int contadorRepartidores = Repartidores.Count + 1;
                                     Console.Write("Ingrese nombre repartidor: ");
                                     string repartidorNombre = Console.ReadLine();
+                                    Console.Clear();
                                     string numeroRepartidor;
                                     while (true)
                                     {
@@ -1014,9 +1050,11 @@ namespace GoXelaDelivery
                                         }
                                         else
                                         {
-                                            Console.WriteLine("Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
+                                            Console.Clear();
+                                            MostrarErrorAnimado("Error: Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
                                         }
                                     }
+                                    Console.Clear();
                                     string numeroLicencia;
                                     while (true)
                                     {
@@ -1028,13 +1066,15 @@ namespace GoXelaDelivery
                                         }
                                         else
                                         {
-                                            Console.WriteLine("Numero de licencia invaldia");
+                                            Console.Clear();
+                                            MostrarErrorAnimado("Error: Número de licencia inválido");
                                         }
                                     }
+                                    Console.WriteLine();
                                     string tipoLicencia;
                                     while (true)
                                     {
-                                        int tipoLicenciaa = ValidacionEntradas("Seleccióne tipo de licencia: \n1. C\n2. B\n3. A\n4. M\n5. E\n>", 1, 5, "Opción invalida");
+                                        int tipoLicenciaa = ValidacionEntradas("Seleccióne tipo de licencia: \n1. C\n2. B\n3. A\n4. M\n5. E\nIngrese una opción: ", 1, 5, "Error: Opción invalida");
                                         if (tipoLicenciaa == 1)
                                         {
                                             tipoLicencia = "C";
@@ -1061,10 +1101,11 @@ namespace GoXelaDelivery
                                             break;
                                         }
                                     }
+                                    Console.Clear();
                                     string estadoRepartidor;
                                     while (true)
                                     {
-                                        int estadoRepartidorIn = ValidacionEntradas("Estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
+                                        int estadoRepartidorIn = ValidacionEntradas("Estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\n\nIngrese opción: ", 1, 3, "Estado no valido");
                                         if (estadoRepartidorIn == 1)
                                         {
                                             estadoRepartidor = "Disponible";
@@ -1081,18 +1122,32 @@ namespace GoXelaDelivery
                                             break;
                                         }
                                     }
-                                    Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, 0, 0));
-                                    Console.ReadKey();
+                                    Console.Clear();
+
+                                    int confirmacionRepartidor = ValidacionEntradas($"Resumen de datos: \n \nNombre: {repartidorNombre}\nNúmero: {numeroRepartidor}\nNúmero de licencia: {numeroLicencia}\nTipo de licencia: {tipoLicencia}\nEstado: {estadoRepartidor}\n\nConfirmar registro de REP-{contadorRepartidores}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Opción no valida");
+                                    if(confirmacionRepartidor == 1)
+                                    {
+                                        Console.Clear();
+                                        Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, 0, 0));
+                                        MostrarAnimacionPuntos();
+                                    }
+                                    else
+                                    {
+                                        MostrarErrorAnimado("Operación cancelada.");
+                                        break;
+                                    }
                                     break;
                                 case 2:
                                     Console.Clear();
                                     if (Repartidores.Count == 0)
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("No hay repartidores registrados");
+                                        MostrarErrorAnimado("No hay repartidores registrados.");
                                     }
                                     else
                                     {
+                                        Console.WriteLine("Repartidores registrados: ");
+                                        Console.WriteLine();
                                         foreach (Repartidor repartidorSin in Repartidores)
                                         {
                                             repartidorSin.MostrarInformacion();
@@ -1105,7 +1160,7 @@ namespace GoXelaDelivery
                                     if (Repartidores.Count == 0)
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("No hay repartidores registrados");
+                                        MostrarErrorAnimado("No hay repartidores registrados.");
                                         Console.ReadKey();
                                         break;
                                     }
@@ -1114,12 +1169,13 @@ namespace GoXelaDelivery
                                         Console.Clear();
                                         Console.WriteLine("Actualizar disponibilidad de un repartidor");
                                         Console.WriteLine();
-                                        Console.Write("Ingrese nombre de repartidor: ");
-                                        string repartidor = Console.ReadLine();
+
+                                        int codigoRepartidor = ValidacionEntradas("Ingrese codigo de repartidor: ", 1, int.MaxValue, "Repartidor no encontrado ");
+
                                         int indiceRep = -1;
                                         for (int i = 0; i < Repartidores.Count; i++)
                                         {
-                                            if (Repartidores[i].NombreCompleto == repartidor)
+                                            if (Repartidores[i].Codigo == codigoRepartidor)
                                             {
                                                 indiceRep = i;
                                                 break;
@@ -1127,23 +1183,18 @@ namespace GoXelaDelivery
                                         }
                                         if (indiceRep != -1)
                                         {
-                                            Console.WriteLine();
-                                            Console.WriteLine("Repartidor encontrado");
-                                            Console.WriteLine();
-                                            Console.WriteLine($"Estado actual: {Repartidores[indiceRep].Disponibilidad}");
-                                            Console.WriteLine();
-                                            Console.WriteLine("Selecciona nuevo estado");
                                             while (true)
                                             {
-                                                int estadoRepartidorNuevo = ValidacionEntradas("1. Disponible\n2. Asignado\n3. Fuera de servicio\n>", 1, 3, "Estado no valido");
+                                                int estadoRepartidorNuevo = ValidacionEntradas($"Repartidor encontrado: \n\nNombre: {Repartidores[indiceRep].NombreCompleto}\nEstado actual: {Repartidores[indiceRep].Disponibilidad}\n\n Seleccione nuevo estado: \n1. Disponible\n2. Asignado\n3. Fuera de servicio\nIngrese opción: ", 1, 3, "Error: Estado no valido");
                                                 if (estadoRepartidorNuevo == 1)
                                                 {
                                                     if (Repartidores[indiceRep].Disponibilidad == "Disponible")
                                                     {
-                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                        MostrarErrorAnimado("Erorr: No puede asignarse el mismo estado!");
                                                     }
                                                     else
                                                     {
+
                                                         Repartidores[indiceRep].actualizarDisponibilidad("Disponible");
                                                         break;
 
@@ -1153,7 +1204,7 @@ namespace GoXelaDelivery
                                                 {
                                                     if (Repartidores[indiceRep].Disponibilidad == "Asignado")
                                                     {
-                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                        MostrarErrorAnimado("Erorr: No puede asignarse el mismo estado!");
                                                     }
                                                     else
                                                     {
@@ -1165,7 +1216,7 @@ namespace GoXelaDelivery
                                                 {
                                                     if (Repartidores[indiceRep].Disponibilidad == "Fuera de servicio")
                                                     {
-                                                        Console.WriteLine("No puede asignarse el mismo estado!");
+                                                        MostrarErrorAnimado("Erorr: No puede asignarse el mismo estado!");
                                                     }
                                                     else
                                                     {
@@ -1175,35 +1226,29 @@ namespace GoXelaDelivery
                                                 }
                                             }
                                             Console.Clear();
-                                            Console.WriteLine("Estado cambiado exitosamente!");
+                                            MostrarExitoAnimado("Estado actualizado correctamente");
                                             Console.ReadKey();
                                             break;
 
                                         }
                                         else
                                         {
-                                            Console.WriteLine("Repartidor no encontrado");
+                                            MostrarErrorAnimado("Error: Repartidor no encontrado");
                                         }
                                         Console.ReadKey();
                                     }
-
                                     break;
                                 case 4:
                                     break;
                             }
                         } while (opcionRepartidor != 4);
-                        Console.ReadKey();
                         break;
                     case 3:
-                        Console.Clear();
-                        Console.WriteLine("Gestion de vehiculos");
-                        Console.WriteLine();
                         int opcionVehiculo;
                         do
                         {
                             Console.Clear();
-                            Console.WriteLine("1. Registrar vehiculo\n2. Consultar Vehiculo\n3. Volver al menu principal");
-                            opcionVehiculo = ValidacionEntradas("Eliga una opción: ", 1, 3, "Opción no valida");
+                            opcionVehiculo = ValidacionEntradas("VEHICULOS\n\n1. Registrar vehiculo\n2. Consultar Vehiculo\n3. Volver al menu principal \n\nEliga una opción: ", 1, 3, "Error: Opción no valida");
                             switch (opcionVehiculo)
                             {
                                 case 1:
@@ -1211,8 +1256,7 @@ namespace GoXelaDelivery
                                     do
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("1. Automovil\n2. Motocicleta\n3. Bicicleta\n4. Volver");
-                                        tipoVehiculo = ValidacionEntradas("Eliga una opción: ", 1, 4, "Opción no valida");
+                                        tipoVehiculo = ValidacionEntradas("Tipo de vehiculo: \n\n1. Automovil\n2. Motocicleta\n3. Bicicleta\n4. Volver\n\nEliga una opción: ", 1, 4, "Error: Opción no valida");
                                         switch (tipoVehiculo)
                                         {
                                             case 1:
@@ -1220,15 +1264,18 @@ namespace GoXelaDelivery
                                                 int codigoAuto = Automoviles.Count + 1;
                                                 Console.Write("Ingrese placa: ");
                                                 string placaAutomovil = Console.ReadLine();
+                                                Console.Clear();
                                                 Console.Write("Ingrese marca: ");
                                                 string marca = Console.ReadLine();
+                                                Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
                                                 string modelo = Console.ReadLine();
                                                 double capacidadMaxima = 250.00;
+                                                Console.Clear();
                                                 string estadoAutomovil;
                                                 while (true)
                                                 {
-                                                    int opcionAutomovil = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
+                                                    int opcionAutomovil = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n\nSeleccione una opción: ", 1, 3, "Error: Opción invalida");
                                                     if (opcionAutomovil == 1)
                                                     {
                                                         estadoAutomovil = "Disponible";
@@ -1246,21 +1293,35 @@ namespace GoXelaDelivery
                                                     }
                                                 }
                                                 double costoOperativo = 35.00;
-                                                Automoviles.Add(new Automovil(codigoAuto, marca, modelo, capacidadMaxima, estadoAutomovil, costoOperativo, placaAutomovil));
-                                                Console.WriteLine();
-                                                Console.WriteLine("Automovil registrado con exito!");
+                                                int confirmacionAutomovil = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaAutomovil}\nMarca: {marca}\nModelo: {modelo}\nCapacidad maxima: {capacidadMaxima}\nEstado: {estadoAutomovil}\n\nConfirmar registro de AUTO-{codigoAuto}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                if(confirmacionAutomovil == 1)
+                                                {
+                                                    Console.Clear();
+                                                    Automoviles.Add(new Automovil(codigoAuto, marca, modelo, capacidadMaxima, estadoAutomovil, costoOperativo, placaAutomovil));
+                                                    MostrarAnimacionPuntos();
+
+                                                }
+                                                else
+                                                {
+                                                    Console.Clear();
+                                                    MostrarErrorAnimado("Operación cancelada.");
+                                                    break;
+                                                }
                                                 Console.ReadKey();
                                                 break;
                                             case 2:
                                                 Console.Clear();
                                                 int codigoMoticicleta = Motocicletas.Count + 1;
-                                                Console.Write("Ingrese placa");
+                                                Console.Write("Ingrese placa: ");
                                                 string placaMoto = Console.ReadLine();
+                                                Console.Clear();
                                                 Console.Write("Ingrese marca: ");
                                                 string marcaMoto = Console.ReadLine();
+                                                Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
                                                 string modeloMoto = Console.ReadLine();
                                                 double capacidadMaximaMoto = 30.00;
+                                                Console.Clear();
                                                 string estadoMotocicleta;
                                                 while (true)
                                                 {
@@ -1282,9 +1343,19 @@ namespace GoXelaDelivery
                                                     }
                                                 }
                                                 double costoOperativoMoto = 15.00;
-                                                Motocicletas.Add(new Moticicleta(codigoMoticicleta, marcaMoto, modeloMoto, capacidadMaximaMoto, estadoMotocicleta, costoOperativoMoto, placaMoto));
-                                                Console.WriteLine();
-                                                Console.WriteLine("Moticleta registrada con exito");
+                                                Console.Clear();
+                                                int confirmacionMotocicleta = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaMoto}\nMarca: {marcaMoto}\nModelo: {modeloMoto}\nCapacidad maxima: {capacidadMaximaMoto}\nEstado: {estadoMotocicleta}\nCosto operativo: {costoOperativoMoto}\n\n¿Esta seguro que desea registrar MOT-{codigoMoticicleta}?\n1. Sí. \n2. No.\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                if (confirmacionMotocicleta == 1)
+                                                {
+                                                    Console.Clear();
+                                                    Motocicletas.Add(new Moticicleta(codigoMoticicleta, marcaMoto, modeloMoto, capacidadMaximaMoto, estadoMotocicleta, costoOperativoMoto, placaMoto));
+                                                    MostrarAnimacionPuntos();
+                                                }
+                                                else
+                                                {
+                                                    MostrarErrorAnimado("Operación cancelada.");
+                                                    break;
+                                                }
                                                 Console.ReadKey();
                                                 break;
                                             case 3:
@@ -1292,8 +1363,10 @@ namespace GoXelaDelivery
                                                 int codigoBicicleta = Bicicletas.Count + 1;
                                                 Console.Write("Ingrese marca: ");
                                                 string marcaBicicleta = Console.ReadLine();
+                                                Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
                                                 string modeloBicleta = Console.ReadLine();
+                                                Console.Clear();
                                                 double capacidadMaximaBici = 10.00;
                                                 string estadoBicicleta;
                                                 while (true)
@@ -1316,9 +1389,20 @@ namespace GoXelaDelivery
                                                     }
                                                 }
                                                 double costoOperativoBicicleta = 15.00;
-                                                Bicicletas.Add(new Bicicleta(codigoBicicleta, marcaBicicleta, modeloBicleta, capacidadMaximaBici, estadoBicicleta, costoOperativoBicicleta));
-                                                Console.WriteLine();
-                                                Console.WriteLine("Bicicleta registrada con exito!");
+                                                Console.Clear();
+                                                Console.WriteLine($"Costo operativo: {costoOperativoBicicleta}");
+                                                int confirmacionBicicleta = ValidacionEntradas($"Resumen de datos: \n\n\nMarca: {marcaBicicleta}\nModelo: {modeloBicleta}\nCapacidad máxima: {capacidadMaximaBici}\nEstado: {estadoBicicleta}\nCosto operativo: {costoOperativoBicicleta}\n\nConfirmar registro de BICI-{codigoBicicleta}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                if(confirmacionBicicleta == 1)
+                                                {
+                                                    Console.Clear();
+                                                    Bicicletas.Add(new Bicicleta(codigoBicicleta, marcaBicicleta, modeloBicleta, capacidadMaximaBici, estadoBicicleta, costoOperativoBicicleta));
+                                                    MostrarAnimacionPuntos();
+                                                }
+                                                else
+                                                {
+                                                    MostrarErrorAnimado("Operación cancelada.");
+                                                    break;
+                                                }
                                                 Console.ReadKey();
                                                 break;
                                             case 4:
@@ -1332,16 +1416,14 @@ namespace GoXelaDelivery
                                     do
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("Consultar Vehiculos");
-                                        Console.WriteLine("1. Automoviles\n2. Motocicletas\n3. Bicicletas\n4. Volver atras");
-                                        opcionConsultaVehiculo = ValidacionEntradas("Ingrese una opción: ", 1, 4, "Opción no valida");
+                                        opcionConsultaVehiculo = ValidacionEntradas("Consultar Vehiculos\n \n1. Automoviles\n2. Motocicletas\n3. Bicicletas\n4. Volver atras\n\nIngrese una opción: ", 1, 4, "Error: Opción no valida");
                                         switch (opcionConsultaVehiculo)
                                         {
                                             case 1:
                                                 Console.Clear();
                                                 if (Automoviles.Count == 0)
                                                 {
-                                                    Console.WriteLine("Sin automoviles registrados");
+                                                    MostrarErrorAnimado("Error: No hay automoviles registrados");
                                                 }
                                                 else
                                                 {
@@ -1360,7 +1442,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (Motocicletas.Count == 0)
                                                 {
-                                                    Console.WriteLine("Sin motocicletas registradas");
+                                                    MostrarErrorAnimado("Error: No hay motocicletas registradas");
                                                 }
                                                 else
                                                 {
@@ -1378,7 +1460,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (Bicicletas.Count == 0)
                                                 {
-                                                    Console.WriteLine("Sin bicicletas registradas");
+                                                    MostrarErrorAnimado("Error: No hay bicicletas registradas");
                                                 }
                                                 else
                                                 {
@@ -1408,8 +1490,7 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            Console.WriteLine("1. Registrar nuevo paquete\n2. Actualizar estado\n3. Calcular tarifa\n4. Mostrar información\n5. Volver al menu principal");
-                            opcionPaquete = ValidacionEntradas("Ingrese una opción: ", 1, 5, "Opción no valida");
+                            opcionPaquete = ValidacionEntradas("PAQUETES\n\n1. Registrar nuevo paquete\n2. Actualizar estado\n3. Calcular tarifa\n4. Mostrar información\n5. Volver al menu principal\n\nIngrese una opción: ", 1, 5, "Opción no valida");
                             switch (opcionPaquete)
                             {
                                 case 1:
@@ -1417,9 +1498,7 @@ namespace GoXelaDelivery
                                     do
                                     {
                                         Console.Clear();
-                                        Console.WriteLine("Tipo de paquete: ");
-                                        Console.WriteLine();
-                                        tipoPaquete = ValidacionEntradas("1. Documento\n2. Estandar\n3. Fragil\n3. Documento\n4. Refrigerado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        tipoPaquete = ValidacionEntradas("Tipo de paquete:\n\n1. Documento\n2. Estandar\n3. Fragil\n3. Documento\n4. Refrigerado\n5. Volver atras\n\nIngrese una opción: ", 1, 5, "Error: Opción no valida");
                                         switch (tipoPaquete)
                                         {
                                             case 1:
@@ -1428,16 +1507,21 @@ namespace GoXelaDelivery
                                                     int codigoDocumento = Documentos.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
+                                                    Console.Clear();
                                                     double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 2, "Eror: Peso permitido para documentos: 1kg a 2kg");
-                                                    double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
+                                                    Console.Clear();
+                                                    double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Erro: Valor fuera del rango permitido");
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de destino: ");
                                                     string direccionDestino = Console.ReadLine();
+                                                    Console.Clear();
                                                     string estadoPaquete;
                                                     while (true)
                                                     {
-                                                        int opcionEstado = ValidacionEntradas("Seleccione estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n >", 1, 4, "Opción invalida");
+                                                        int opcionEstado = ValidacionEntradas("Seleccione estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n\nIngrese una opción: ", 1, 4, "Opción invalida");
                                                         if (opcionEstado == 1)
                                                         {
                                                             estadoPaquete = "Pendiente";
@@ -1459,12 +1543,20 @@ namespace GoXelaDelivery
                                                             break;
                                                         }
                                                     }
-
-                                                    Documentos.Add(new Documento(codigoDocumento, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
                                                     Console.Clear();
-                                                    Console.WriteLine("Paquete registrado con exito!");
-
-                                                    Console.ReadKey();
+                                                    int confirmacionDoc = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete} kg\nValor declarado: ${valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro que desea agregar PAQD-{codigoDocumento}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                    if(confirmacionDoc == 1)
+                                                    {
+                                                        Console.Clear();
+                                                        Documentos.Add(new Documento(codigoDocumento, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
+                                                        MostrarAnimacionPuntos();
+                                                    }
+                                                    else
+                                                    {
+                                                        MostrarErrorAnimado("Operación cancelada.");
+                                                        Console.ReadKey();
+                                                        break;
+                                                    }
                                                 }
                                                 break;
                                             case 2:
@@ -1473,12 +1565,17 @@ namespace GoXelaDelivery
                                                     int codigoPaqueteEstandar = PaquetesEstandar.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
-                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 50, "Eror: peso permitido para paquetes estandar 1kg a 50");
-                                                    double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
+                                                    Console.Clear();
+                                                    double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 50, "Eror: peso permitido para paquetes estandar 1kg a 50kg");
+                                                    Console.Clear();
+                                                    double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Erro: Valor fuera del rango permitido");
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de destino: ");
                                                     string direccionDestino = Console.ReadLine();
+                                                    Console.Clear();
                                                     string estadoPaquete;
                                                     while (true)
                                                     {
@@ -1504,12 +1601,23 @@ namespace GoXelaDelivery
                                                             break;
                                                         }
                                                     }
-
-                                                    PaquetesEstandar.Add(new PaqueteEstandar(codigoPaqueteEstandar, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
                                                     Console.Clear();
-                                                    Console.WriteLine("Paquete registrado con exito!");
-                                                    Console.ReadKey();
+                                                    int confirmacionEstandar = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete}kg\nValor declarado: ${valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro que desea registrar PAQE-{codigoPaqueteEstandar}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                    if(confirmacionEstandar == 1)
+                                                    {
+                                                        Console.Clear();
+                                                        PaquetesEstandar.Add(new PaqueteEstandar(codigoPaqueteEstandar, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
+                                                        MostrarAnimacionPuntos();
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.Clear();
+                                                        MostrarErrorAnimado("Operación cancelada.");
+                                                        break;
+
+                                                    }
                                                 }
+                                                Console.ReadKey();
                                                 break;
                                             case 3:
                                                 {
@@ -1517,12 +1625,17 @@ namespace GoXelaDelivery
                                                     int codigoPaqueteFragil = PaquetesFragiles.Count + 1;
                                                     Console.Write("Ingrese descripción del paquete: ");
                                                     string descripcionPaquete = Console.ReadLine();
+                                                    Console.Clear();
                                                     double pesoPaquete = ValidacionEntradasDouble("Ingrese peso: ", 1, 20, "Error: peso permitido para paquetes fragiles 1kg a 20kg");
+                                                    Console.Clear();
                                                     double valorDeclarado = ValidacionEntradasDouble("Ingrese valor declarado: ", 1, 10000, "Valor fuera del rango permitido");
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de origen: ");
                                                     string direccionOrigen = Console.ReadLine();
+                                                    Console.Clear();
                                                     Console.Write("Ingrese dirección de destino: ");
                                                     string direccionDestino = Console.ReadLine();
+                                                    Console.Clear();
                                                     string estadoPaquete;
                                                     while (true)
                                                     {
@@ -1549,11 +1662,22 @@ namespace GoXelaDelivery
                                                         }
                                                     }
 
-                                                    PaquetesFragiles.Add(new PaqueteFragil(codigoPaqueteFragil, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
                                                     Console.Clear();
-                                                    Console.WriteLine("Paquete registrado con exito!");
-                                                    Console.ReadKey();
+                                                    int confirmacioonFragil = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete}kg\nValor declarado: ${valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro de registrar PAQF-{codigoPaqueteFragil}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Erro: Opción no valida");
+                                                    if (confirmacioonFragil == 1)
+                                                    {
+                                                        Console.Clear();
+                                                        PaquetesFragiles.Add(new PaqueteFragil(codigoPaqueteFragil, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
+                                                        MostrarAnimacionPuntos();
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.Clear();
+                                                        MostrarErrorAnimado("Operación cancelada.");
+                                                        break;
+                                                    }
                                                 }
+                                                Console.ReadKey();
                                                 break;
                                             case 4:
                                                 {
@@ -1592,12 +1716,24 @@ namespace GoXelaDelivery
                                                             break;
                                                         }
                                                     }
-
-                                                    ProductosRefrigerados.Add(new ProductoRefrigerado(codigoProductoRefrigerado, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
                                                     Console.Clear();
-                                                    Console.WriteLine("Paquete registrado con exito!");
-                                                    Console.ReadKey();
+
+                                                    int confirmacionRefrigerado = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete}\nValor declarado: {valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro de registrar PAQR-{codigoProductoRefrigerado}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                    if (confirmacionRefrigerado == 1)
+                                                    {
+                                                        Console.Clear();
+                                                        ProductosRefrigerados.Add(new ProductoRefrigerado(codigoProductoRefrigerado, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
+
+                                                        MostrarAnimacionPuntos();
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.Clear();
+                                                        MostrarErrorAnimado("Operación cancelada.");
+                                                        break;
+                                                    }
                                                 }
+                                                
                                                 break;
                                             case 5:
                                                 break;
@@ -1609,13 +1745,12 @@ namespace GoXelaDelivery
                                 case 2:
 
                                     Console.Clear();
-                                    Console.WriteLine("Actualizar estado de paquete");
 
                                     int opcionEstadoPaquete;
                                     do
                                     {
                                         Console.Clear();
-                                        opcionEstadoPaquete = ValidacionEntradas("1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        opcionEstadoPaquete = ValidacionEntradas("Actualizar estado de paquete\n\n1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\nIngrese una opción: ", 1, 5, "Error: Opción no valida");
                                         switch (opcionEstadoPaquete)
                                         {
                                             case 1:
@@ -1644,19 +1779,18 @@ namespace GoXelaDelivery
                                     break;
                                 case 4:
                                     Console.Clear();
-                                    Console.WriteLine("Mostrar información");
                                     int opcionMostrar;
                                     do
                                     {
                                         Console.Clear();
-                                        opcionMostrar = ValidacionEntradas("Seleccione tipo de paquete: \n1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        opcionMostrar = ValidacionEntradas("Mostrar información\n\nSeleccione tipo de paquete: \n1. Documento\n2. Estandar\n3. Fragil\n4. Refrigerado\n5. Volver atras\n\nIngrese una opción: ", 1, 5, "Error: Opción no valida");
                                         switch (opcionMostrar)
                                         {
                                             case 1:
                                                 Console.Clear();
                                                 if (Documentos.Count == 0)
                                                 {
-                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    MostrarErrorAnimado("Error: No hay documentos registrados");
                                                     Console.ReadKey();
                                                     break;
                                                 }
@@ -1678,7 +1812,6 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (PaquetesEstandar.Count == 0)
                                                 {
-                                                    Console.WriteLine("No hay paquetes registrados");
                                                     Console.ReadKey();
                                                     break;
                                                 }
@@ -1698,7 +1831,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (PaquetesFragiles.Count == 0)
                                                 {
-                                                    Console.WriteLine("No hay paquetes registrados");
+                                                    MostrarErrorAnimado("Error: No hay paquetes fragiles registrados");
                                                     Console.ReadKey();
                                                     break;
                                                 }
@@ -1718,7 +1851,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 if (ProductosRefrigerados.Count == 0)
                                                 {
-                                                    Console.WriteLine("No hay productos registrados");
+                                                    MostrarErrorAnimado("Error: No hay productos refrigerados registrados");
                                                     Console.ReadKey();
                                                     break;
                                                 }
@@ -1752,12 +1885,11 @@ namespace GoXelaDelivery
                         break;
                     case 6:
                         Console.Clear();
-                        Console.WriteLine("Gestión de incidencias");
                         int opcionMenuIncidencia;
                         do
                         {
                             Console.Clear();    
-                            opcionMenuIncidencia = ValidacionEntradas("1. Registrar incidencia\n2. Mostrar información de incidencias\n3. Volver al menu principal\n>", 1, 3, "Opción no valida");
+                            opcionMenuIncidencia = ValidacionEntradas("Gestión de incidencias\n\n1. Registrar incidencia\n2. Mostrar información de incidencias\n3. Volver al menu principal\n\nIngrese una opción: ", 1, 3, "Error: Opción no valida");
                             switch (opcionMenuIncidencia)
                             {
                                 case 1:
@@ -1774,14 +1906,15 @@ namespace GoXelaDelivery
                                     }
                                     if (indiceEntrega == -1)
                                     {
-                                        Console.WriteLine("Paquete no encontrado");
+                                        MostrarErrorAnimado("Paquete no encontrado");
                                         Console.ReadKey();
                                         break;
                                     }
                                     else
                                     {
+                                        Console.Clear();
                                         string tipoIndicenaciaString;
-                                        int tipoIncidencia = ValidacionEntradas("Seleccione tipo de incidencia: \n1. Retraso\n2. Perdido\n3. Dañado\n4. Cancelado\n5. Volver atras\n>", 1, 5, "Opción no valida");
+                                        int tipoIncidencia = ValidacionEntradas("Seleccione tipo de incidencia: \n1. Retraso\n2. Perdido\n3. Dañado\n4. Cancelado\n5. Volver atras\n\n Ingrese una opción: ", 1, 5, "Error: Opción no valida");
                                         if (tipoIncidencia == 1)
                                         {
                                             tipoIndicenaciaString = "Retraso";
@@ -1802,11 +1935,12 @@ namespace GoXelaDelivery
                                         {
                                             tipoIndicenaciaString = "";
                                         }
-
+                                        Console.Clear();
                                         Console.Write("Ingrese descripción: ");
                                         string descripcion = Console.ReadLine();
                                         string estadoIncidencia;
-                                        int estadoIncidenciaOpcion = ValidacionEntradas("Seleccione estado de incidencia: \n1. Pendiente\n2. En proceso\n3. Resuelto\n>", 1, 2, "Opción no valida");
+                                        Console.Clear();
+                                        int estadoIncidenciaOpcion = ValidacionEntradas("Seleccione estado de incidencia: \n1. Pendiente\n2. En proceso\n3. Resuelto\n\nIngrese una opción: ", 1, 3, "Error: Opción no valida");
                                         if (estadoIncidenciaOpcion == 1)
                                         {
                                             estadoIncidencia = "Pendiente";
@@ -1820,20 +1954,32 @@ namespace GoXelaDelivery
                                         {
                                             estadoIncidencia = "Resuelto";
                                         }
+                                        Console.Clear();
+
                                         Console.Write("Acción tomada: ");
                                         string accionTomada = Console.ReadLine();
-                                        Incidencias nuevaIncidencia = new Incidencias(codigoPaqueteIncidencia, tipoIndicenaciaString, descripcion, DateTime.Now, estadoIncidencia, accionTomada);
-                                        IncidenciasList.Add(nuevaIncidencia);
+                                        int confirmacionIncidencia = ValidacionEntradas($"Resumen de datos: \n\nCódigo del paquete: {codigoPaqueteIncidencia}\nTipo de incidencia: {tipoIndicenaciaString}\nDescripción: {descripcion}\nEstado: {estadoIncidencia}\nAcción tomada: {accionTomada}\n\n¿Desea registrar esta incidencia? \n1. Sí, \n2. No: ", 1, 2, "Error: Opción no valida");
+                                        if(confirmacionIncidencia == 1)
+                                        {
+                                            Console.Clear();
+                                            Incidencias nuevaIncidencia = new Incidencias(codigoPaqueteIncidencia, tipoIndicenaciaString, descripcion, DateTime.Now, estadoIncidencia, accionTomada);
+                                            IncidenciasList.Add(nuevaIncidencia);
 
-                                        Entregass[indiceEntrega].AgregarNuevaIncidencia(nuevaIncidencia);
-                                        Console.WriteLine("Incidencia nueva registrada exitosamente!");
-                                        Console.ReadKey();
+                                            Entregass[indiceEntrega].AgregarNuevaIncidencia(nuevaIncidencia);
+                                            MostrarAnimacionPuntos();
+                                        }
+                                        else
+                                        {
+                                            MostrarErrorAnimado("Operación calcelada");
+                                            break;
+                                        }
+                                        
                                     }
                                     break;
                                 case 2:
                                     if(IncidenciasList.Count == 0)
                                     {
-                                        Console.WriteLine("Sin incidencias registradas");
+                                        MostrarErrorAnimado("Sin incidencias registradas.");
                                         Console.ReadKey();
                                         
                                     }
@@ -1983,15 +2129,16 @@ namespace GoXelaDelivery
             string[] estados = { "Pendiente", "En Transito", "Entregado", "Cancelado" };
             while (true)
             {
-                int opcion = ValidacionEntradas("Seleccione un nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\n>", 1, 4, "Opción invalida");
+                int opcion = ValidacionEntradas("Seleccione un nuevo estado: \n1. Pendiente\n2. En tránsito\n3. Entregado\n4. Cancelado\nIngrese una opción: ", 1, 4, "Error: Opción invalida");
                 string estadoElegido = estados[opcion - 1];
                 if (listaPaquetes[indicePaquete].Estado == estadoElegido)
                 {
                     Console.Clear();
-                    Console.WriteLine("No se puede asignar el mismo estado. Asigne uno nuevo.");
+                    MostrarErrorAnimado("Erorr: No se puede asignar el mismo estado.");
                 }
                 else
                 {
+                    Console.Clear();
                     listaPaquetes[indicePaquete].ActualizarEstado(estadoElegido);
                     Console.WriteLine("Estado cambiado exitosamente!");
                     Console.ReadKey();
@@ -2005,16 +2152,22 @@ namespace GoXelaDelivery
             bool esValido;
             do
             {
+                Console.Clear();
                 Console.Write(mensaje);
                 string entrada = Console.ReadLine();
                 esValido = double.TryParse(entrada, out valor);
                 if (!esValido)
                 {
-                    Console.WriteLine("Por favor ingrese un número");
+                    Console.Clear();
+                    MostrarErrorAnimado("Error: Por favor ingrese un número");
+                    Console.WriteLine(mensaje);
+
                 }
                 else if (valor < min || valor > max)
                 {
-                    Console.WriteLine(errorMensaje);
+                    Console.Clear();
+                    MostrarErrorAnimado(errorMensaje);
+                    Console.WriteLine(mensaje);
                     esValido = false;
                 }
 
@@ -2027,22 +2180,39 @@ namespace GoXelaDelivery
             bool esValido;
             do
             {
+                Console.Clear();
                 Console.Write(mensaje);
                 string entrada = Console.ReadLine();
                 esValido = int.TryParse(entrada, out valor);
+
                 if (!esValido)
                 {
-                    Console.WriteLine("Por favor ingrese un número");
+                    Console.Clear();
+                    MostrarErrorAnimado("ERROR: Por favor ingrese un número válido.");
+                    Console.WriteLine(mensaje);
+
                 }
                 else if (valor < min || valor > max)
                 {
-                    Console.WriteLine(errorMensaje);
+                    Console.Clear();
+                    MostrarErrorAnimado($"► ERROR: {errorMensaje}");
+                    Console.WriteLine(mensaje);
                     esValido = false;
                 }
 
             } while (!esValido);
             return valor;
         }
+
+        static void MostrarErrorAnimado(string textoError)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(textoError);
+            Thread.Sleep(1400);
+            Console.Write("\r" + new string(' ', textoError.Length) + "\r");
+            Console.ResetColor();
+        }
+
         static bool ValidarLicencia(string telefono)
         {
             if (telefono.Length != 13)
@@ -2072,6 +2242,32 @@ namespace GoXelaDelivery
                 }
             }
             return true;
+        }
+        static void MostrarExitoAnimado(string mensajeExito)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+
+      
+
+            Console.Write($" {mensajeExito}");
+
+            Thread.Sleep(2000);
+
+            Console.Write("\r" + new string(' ', mensajeExito.Length + 5) + "\r");
+
+            Console.ResetColor();
+        }
+        static void MostrarAnimacionPuntos()
+        {
+            Console.Write("Procesando y guardando datos");
+
+            for (int i = 0; i < 5; i++)
+            {
+                Console.Write(".");
+                Thread.Sleep(400); 
+            }
+            Console.Clear();
+            MostrarExitoAnimado("Registro completado con éxito!");
         }
     }
 }
