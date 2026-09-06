@@ -1,11 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Runtime;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -376,7 +372,10 @@ namespace GoXelaDelivery
         {
             IncidenciasHistorial.Add(incidencia);
         }
-
+        public void MostrarInformacion()
+        {
+            Console.WriteLine($"Código: {Codigo}\nFecha de registro: {Fecha}\nDirección de origen: {DireccionOrigen}\nDirección de destino: {DireccionDestino}\nDistancia estimada: {DistanciaEstimada}\nTipo de servicio: {TipoServicio}\nEstado: {Estado}\nTarifa base: {TarifaBase}\nRecargos: {Recargos}\nDescuentos: {Descuentos}\nTotal:");
+        }
     }
     class Vehiculo
     {
@@ -1682,7 +1681,7 @@ namespace GoXelaDelivery
                         break;
                     case 5:
                         Console.Clear();
-                        int option, option2, entregasPendientes = 0, entregasCumplidas = 0, entregas = 0, codigoCliente, codigoProducto, codigoRepartidor, codigoVehiculo, tipoServicio;
+                        int option, option2, entregasPendientes = 0, entregasCumplidas = 0, entregas = 0, codigoCliente, codigoProducto, codigoRepartidor, codigoVehiculo, tipoServicio, codigoEntrega;
                         bool encontrado = false;
                         string direccionInicial, direccionFinal, servicio;
                         double distancia, peso=0;
@@ -1824,7 +1823,118 @@ namespace GoXelaDelivery
                                             {
                                                 Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
                                             }
+                                            do
+                                            {
+                                                Console.Write("Ingrese el código del paquete: PAQ-");
+                                                codigoProducto = ValidarEntero();
+                                                encontrado = false;
+                                                foreach (ProductoRefrigerado doc in ProductosRefrigerados)
+                                                {
+                                                    if (codigoProducto == doc.Codigo)
+                                                    {
+                                                        encontrado = true;
+                                                        peso = doc.Peso;
+                                                    }
+                                                }
+                                                if (!encontrado)
+                                                {
+                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
+                                                }
+                                            } while (!encontrado);
+                                            Entregas.Add(new Entrega(DateTime.Now, codigoCliente, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Refrigerado", servicio), 0, 0, 0));
+                                            Console.WriteLine("Entrega solicitada con éxito");
                                             break;
+                                    }
+                                    break;
+                                case 2:
+                                    Console.WriteLine("ENTREGAS PENDIENTES");
+                                    entregasPendientes = 0;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if(ent.Estado!="Entregada"&& ent.Estado!="Cancelada")
+                                        {
+                                            ent.MostrarInformacion();
+                                            entregasPendientes++;
+                                        }
+                                    }
+                                    if (entregasPendientes == 0)
+                                    {
+                                        Console.WriteLine("No hay entregas pendientes");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"Total de entregas pendientes: {entregasPendientes}");
+                                    }
+                                    break;
+                                case 3:
+                                    Console.WriteLine("ENTREGAS CUMPLIDAS");
+                                    {
+                                        entregasCumplidas = 0;
+                                        foreach (Entrega ent in Entregas)
+                                        {
+                                            if(ent.Estado=="Entregada")
+                                            {
+                                                ent.MostrarInformacion();
+                                                entregasCumplidas++;
+                                            }
+                                        }
+                                        if(entregasCumplidas==0)
+                                        {
+                                            Console.WriteLine("No hay entegas cumplidas");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"Total de entegas cumplidas: {entregasCumplidas}");
+                                        }
+                                    }
+                                    break;
+                                case 4:
+                                    Console.WriteLine("BUSCAR ENTREGA ESPECÍFICA");
+                                    Console.Write("Ingrese el código de la entrega: ENT-");
+                                    codigoEntrega = ValidarEntero();
+                                    encontrado = false;
+                                    foreach(Entrega ent in Entregas)
+                                    {
+                                        if(ent.Codigo==codigoEntrega)
+                                        {
+                                            ent.MostrarInformacion();
+                                            encontrado = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!encontrado)
+                                    {
+                                        Console.WriteLine("Error: entrega no encontrada");
+                                    }
+                                    break;
+                                case 5:
+                                    
+                                    break;
+                                case 6:
+                                    Console.WriteLine("ACTUALIZAR ESTADO DE ENTREGA");
+                                    Console.WriteLine("Ingrese el código de la entrega a actualizar:");
+                                    codigoEntrega= ValidarEntero();
+                                    encontrado = false;
+                                    Entrega actualizar=null;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if(ent.Codigo==codigoEntrega)
+                                        {
+                                            encontrado = true;
+                                            actualizar = ent;
+                                            break;
+                                        }
+                                    }
+                                    if (encontrado)
+                                    {
+                                        Console.WriteLine($"Estado actual:  {actualizar.Estado}");
+                                        Console.WriteLine("Seleccione el nuevo estado:\n1. Asignada\n2. Recogida\n3. En ruta\n4. Entregada\nIngrese una opción:");
+                                        int optionEstado = ValidarEntero();
+                                        bool validacion = false;
+                                        switch (optionEstado)
+                                        {
+
+                                        }
                                     }
                                     break;
                             }
