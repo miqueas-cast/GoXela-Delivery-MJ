@@ -1685,7 +1685,7 @@ namespace GoXelaDelivery
                         int option, option2, entregasPendientes = 0, entregasCumplidas = 0, entregas = 0, codigoCliente, codigoProducto, codigoRepartidor, codigoVehiculo, tipoServicio;
                         bool encontrado = false;
                         string direccionInicial, direccionFinal, servicio;
-                        double distancia;
+                        double distancia, peso=0;
                         do
                         {
                             Console.WriteLine("GESTIÓN DE ENTREGAS\n1. Generar nueva entrega\n2. Ver entregas pendientes\n3. Ver entregas cumplidas\n4. Buscar entrega específica\n5. Mostrar total de entregas\n6. Actualizar estado de entrega\n7. Regresar\nIngrese una opción:");
@@ -1723,7 +1723,6 @@ namespace GoXelaDelivery
                                     direccionInicial = Console.ReadLine();
                                     Console.WriteLine("Ingrese la dirección de destino:");
                                     direccionFinal = Console.ReadLine();
-                                    Console.WriteLine("Ingrese la distancia aproximada (en kilómetros):");
                                     distancia = ValidacionEntradasDouble("Ingrese la distancia aproximada (en kilómetros):", 1, 100, "Error: el dato debe ser numérico y estar entre 1 y 100");
                                     Console.WriteLine("Tipo de servicio:\n1. Normal\n2. Prioritario\n3. Urgente");
                                     tipoServicio = ValidacionEntradas("Ingrese una opción:", 1, 3, "Error: dato incorrecto o fuera de rango");
@@ -1735,7 +1734,7 @@ namespace GoXelaDelivery
                                     {
                                         servicio = "Prioritario";
                                     }
-                                    else if (tipoServicio == 3)
+                                    else
                                     {
                                         servicio = "Urgente";
                                     }
@@ -1746,29 +1745,84 @@ namespace GoXelaDelivery
                                             Console.WriteLine("Listado de documentos:");
                                             foreach (Documento doc in Documentos)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}");
-                                                Entregas.Add(new Entrega())
+                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
                                             }
+                                            Console.WriteLine();
+                                            do
+                                            {
+                                                Console.WriteLine("Ingrese el código del paquete: PAQ-");
+                                                codigoProducto = ValidarEntero();
+                                                foreach (Documento doc in Documentos)
+                                                {
+                                                    if (codigoProducto == doc.Codigo)
+                                                    {
+                                                        encontrado = true;
+                                                        peso = doc.Peso;
+                                                    }
+                                                }
+                                                if (encontrado == false)
+                                                {
+                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
+                                                }
+                                            } while (!encontrado);
+                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0,0,0));
                                             break;
                                         case 2:
                                             Console.WriteLine("Listado de paquetes estándar:");
                                             foreach (PaqueteEstandar pac in PaquetesEstandar)
                                             {
-                                                Console.WriteLine($"Descripción: {pac.Descripcion}\nCódigo: {pac.Codigo}");
+                                                Console.WriteLine($"Descripción: {pac.Descripcion}\nCódigo: {pac.Codigo}\nPeso: {pac.Peso}");
                                             }
+                                            Console.WriteLine();
+                                            do
+                                            {
+                                                Console.WriteLine("Ingrese el código del paquete: PAQ-") ;
+                                                codigoProducto = ValidarEntero();
+                                                foreach (PaqueteEstandar doc in PaquetesEstandar)
+                                                {
+                                                    if (codigoProducto == doc.Codigo)
+                                                    {
+                                                        encontrado = true;
+                                                        peso = doc.Peso;
+                                                    }
+                                                }
+                                                if (encontrado == false)
+                                                {
+                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
+                                                }
+                                            } while (!encontrado);
+                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0, 0, 0));
                                             break;
                                         case 3:
                                             Console.WriteLine("Listado de paquetes frágiles:");
                                             foreach (PaqueteFragil doc in PaquetesFragiles)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}");
+                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
                                             }
+                                            do
+                                            {
+                                                Console.WriteLine("Ingrese el código del paquete: PAQ-");
+                                                codigoProducto = ValidarEntero();
+                                                foreach (PaqueteFragil doc in PaquetesFragiles)
+                                                {
+                                                    if (codigoProducto == doc.Codigo)
+                                                    {
+                                                        encontrado = true;
+                                                        peso = doc.Peso;
+                                                    }
+                                                }
+                                                if (encontrado == false)
+                                                {
+                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
+                                                }
+                                            } while (!encontrado);
+                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0, 0, 0));
                                             break;
                                         case 4:
                                             Console.WriteLine("Listado de paquetes refrigerados:");
                                             foreach (ProductoRefrigerado doc in ProductosRefrigerados)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}");
+                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
                                             }
                                             break;
                                     }
@@ -2134,6 +2188,20 @@ namespace GoXelaDelivery
                 }
             } while (true);
             return dato;
+        }
+        static double CalcularTarifaBase(double peso, double distancia, string tipoPaquete, string tipoServicio)
+        {
+            double total;
+            total = (peso * 3) + (distancia * 5);
+            if(tipoServicio=="Prioritario")
+            {
+                total += 10;
+            }
+            else if(tipoServicio=="Urgente")
+            {
+                total += 20;
+            }
+            return total;
         }
     }
 }
