@@ -10,14 +10,14 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
 using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.CodeDom;
 
 namespace GoXelaDelivery
 {
+    public struct DatosReceptor { public string Nombre; }
     class Persona
     {
         private int codigo;
@@ -53,7 +53,7 @@ namespace GoXelaDelivery
             get { return codigo; }
             set
             {
-                if (value > 0)
+                if (value >= 0)
                 {
                     codigo = value;
                 }
@@ -64,14 +64,12 @@ namespace GoXelaDelivery
             Codigo = codigo;
             NombreCompleto = nombreCompleto;
             Telefono = telefono;
-        }
-        public void MostrarInformacion()
-        {
 
         }
     }
     class Repartidor : Persona
     {
+        private static int ultimoIdRepartidor = 0;
         private string numeroLicencia;
         private string tipoLicencia;
         private string disponibilidad;
@@ -83,7 +81,7 @@ namespace GoXelaDelivery
             get { return cantidadEntregas; }
             set
             {
-                if (value > 0)
+                if (value >= 0)
                 {
                     cantidadEntregas = value;
                 }
@@ -96,7 +94,7 @@ namespace GoXelaDelivery
             get { return calificacionEntregas; }
             set
             {
-                if (value > 0)
+                if (value >= 0)
                 {
                     calificacionEntregas = value;
                 }
@@ -138,6 +136,15 @@ namespace GoXelaDelivery
                 }
             }
         }
+        public Repartidor(string nombreCompleto, string telefono, string numeroLicencia, string tipoLicencia, string disponibilidad, int cantidadEntregas, int calificacionEntregas)
+            : base(++ultimoIdRepartidor, nombreCompleto, telefono)
+        {
+            NumeroLicencia = numeroLicencia;
+            TipoLicencia = tipoLicencia;
+            Disponibilidad = disponibilidad;
+            CantidadEntregas = cantidadEntregas;
+            CalificacionEntregas = calificacionEntregas;
+        }
         public Repartidor(int codigo, string nombreCompleto, string telefono, string numeroLicencia, string tipoLicencia, string disponibilidad, int cantidadEntregas, int calificacionEntregas)
             : base(codigo, nombreCompleto, telefono)
         {
@@ -146,6 +153,10 @@ namespace GoXelaDelivery
             Disponibilidad = disponibilidad;
             CantidadEntregas = cantidadEntregas;
             CalificacionEntregas = calificacionEntregas;
+            if (codigo > ultimoIdRepartidor)
+            {
+                ultimoIdRepartidor = codigo;
+            }
         }
         public void MostrarInformacion()
         {
@@ -164,6 +175,21 @@ namespace GoXelaDelivery
         {
             Disponibilidad = nuevoEstado;
         }
+
+        private int sumaCalificaciones = 0;
+        public void RegistrarCalificacion(int nuevaCalificacion)
+        {
+            if (sumaCalificaciones == 0 && CalificacionEntregas != 0 && CantidadEntregas != 0)
+            {
+                sumaCalificaciones = CalificacionEntregas * CantidadEntregas;
+            }
+            sumaCalificaciones += nuevaCalificacion;
+            if (CantidadEntregas > 0)
+            {
+                CalificacionEntregas = sumaCalificaciones / CantidadEntregas;
+            }
+        }
+
         public void ActualizarEntregas(int nuevasEntregas)
         {
             CantidadEntregas += nuevasEntregas;
@@ -171,6 +197,7 @@ namespace GoXelaDelivery
     }
     class Cliente : Persona
     {
+        private static int ultimoIdCliente = 0;
         private string correoElectronico;
         private string direccion;
         private int cantidadSolicitudes;
@@ -181,7 +208,7 @@ namespace GoXelaDelivery
             set
             {
 
-                if (value > 0)
+                if (value >= 0)
                 {
                     cantidadSolicitudes = value;
                 }
@@ -211,12 +238,23 @@ namespace GoXelaDelivery
                 }
             }
         }
+        public Cliente(string nombreCompleto, string telefono, string correoElectronico, string direccion, int cantidadSolicitudes)
+            : base(++ultimoIdCliente, nombreCompleto, telefono)
+        {
+            CorreoElectronico = correoElectronico;
+            Direccion = direccion;
+            CantidadSolicitudes = cantidadSolicitudes;
+        }
         public Cliente(int codigo, string nombreCompleto, string telefono, string correoElectronico, string direccion, int cantidadSolicitudes)
             : base(codigo, nombreCompleto, telefono)
         {
             CorreoElectronico = correoElectronico;
             Direccion = direccion;
             CantidadSolicitudes = cantidadSolicitudes;
+            if (codigo > ultimoIdCliente)
+            {
+                ultimoIdCliente = codigo;
+            }
         }
         public void MostrarInformacion()
         {
@@ -233,6 +271,7 @@ namespace GoXelaDelivery
     }
     class Entrega
     {
+
         private DateTime fecha;
         private int codigo;
         private string direccionOrigen;
@@ -245,7 +284,10 @@ namespace GoXelaDelivery
         private double descuentos;
         private double total;
 
-
+        public Cliente ClienteSolicitante { get; set; }
+        public Paquete PaqueteAEnviar { get; set; }
+        public Repartidor RepartidorAsignado { get; set; }
+        public Vehiculo VehiculoAsignado { get; set; }
         public int Codigo
         {
             get { return codigo; }
@@ -354,26 +396,20 @@ namespace GoXelaDelivery
             }
         }
 
-        public DateTime Fecha
-        {
-            get { return fecha; }
-            set
-            {
-                if (value >= DateTime.Now)
-                {
-                    fecha = value;
-                }
-            }
-        }
+        public DateTime Fecha { get; set; }
 
+
+
+        public DatosReceptor Receptor { get; set; }
+        public int Calificacion { get; set; }
 
         public List<Incidencias> IncidenciasHistorial { get; set; } = new List<Incidencias>();
-        public Entrega(DateTime fecha, int codigo, string direccionOrigen, string direccionDestino, double distanciaEstimada, string tipoServicio, string estado, double tarifaBase, double recargos, double descuentos, double total)
+        public Entrega(int codigo, Cliente cliente, Paquete paquete, double distanciaEstimada, string tipoServicio, string estado, double tarifaBase, double recargos, double descuentos, double total)
         {
-            Fecha = fecha;
+            Fecha = DateTime.Now;
             Codigo = codigo;
-            DireccionOrigen = direccionOrigen;
-            DireccionDestino = direccionDestino;
+            ClienteSolicitante = cliente;
+            PaqueteAEnviar = paquete;
             DistanciaEstimada = distanciaEstimada;
             TipoServicio = tipoServicio;
             Estado = estado;
@@ -381,15 +417,54 @@ namespace GoXelaDelivery
             Recargos = recargos;
             Descuentos = descuentos;
             Total = total;
+            RepartidorAsignado = null;
+            VehiculoAsignado = null;
+
             IncidenciasHistorial = new List<Incidencias>();
         }
         public void AgregarNuevaIncidencia(Incidencias incidencia)
         {
             IncidenciasHistorial.Add(incidencia);
         }
+        public void CalcularTarifaTotal()
+        {
+            if (VehiculoAsignado != null && PaqueteAEnviar != null)
+            {
+                TarifaBase = (PaqueteAEnviar.Peso * 3) + (DistanciaEstimada * 5);
+                Recargos = VehiculoAsignado.CalcularTarifaVehiculo() + PaqueteAEnviar.CalcularCostoEnvio();
+                if (TipoServicio == "Prioritario") Recargos += 10;
+                if (TipoServicio == "Urgente") Recargos += 20;
+                Total = TarifaBase + Recargos - Descuentos;
+            }
+        }
+
         public void MostrarInformacion()
         {
-            Console.WriteLine($"Código: {Codigo}\nFecha de registro: {Fecha}\nDirección de origen: {DireccionOrigen}\nDirección de destino: {DireccionDestino}\nDistancia estimada: {DistanciaEstimada}\nTipo de servicio: {TipoServicio}\nEstado: {Estado}\nTarifa base: {TarifaBase}\nRecargos: {Recargos}\nDescuentos: {Descuentos}\nTotal:");
+            Console.WriteLine($"                [ ENT-{Codigo} ]                  ");
+            Console.WriteLine();
+            Console.WriteLine($"{"Fecha de registro:",-23} {Fecha:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine($"{"Dirección de origen:",-23} {PaqueteAEnviar.DireccionOrigen}");
+            Console.WriteLine($"{"Dirección de destino:",-23} {PaqueteAEnviar.DireccionDestino}");
+            Console.WriteLine($"{"Distancia estimada:",-23} {DistanciaEstimada}");
+            Console.WriteLine($"{"Tipo de servicio:",-23} {TipoServicio}");
+            Console.WriteLine($"{"Estado:",-23} {Estado}");
+            Console.WriteLine($"{"Tarifa base:",-23} {TarifaBase:F2}");
+            Console.WriteLine($"{"Recargos:",-23} {Recargos:F2}");
+            Console.WriteLine($"{"Descuentos:",-23} {Descuentos:F2}");
+            Console.WriteLine($"{"Total:",-23} {Total:F2}");
+
+            if (RepartidorAsignado != null && VehiculoAsignado != null)
+            {
+                Console.WriteLine($"{"Repartidor:",-23} {RepartidorAsignado.NombreCompleto}");
+                Console.WriteLine($"{"Vehículo:",-23} {VehiculoAsignado.Marca} ");
+            }
+            else
+            {
+                Console.WriteLine($"{"Repartidor:",-23} Aún no asignado");
+                Console.WriteLine($"{"Vehículo:",-23} Aún no asignado");
+            }
+
+            Console.WriteLine("--------------------------------------------\n");
         }
     }
     class Vehiculo
@@ -487,6 +562,10 @@ namespace GoXelaDelivery
             total = CostoOperativo;
             return total;
         }
+        public virtual bool PuedeTransportar(Paquete paquete)
+        {
+            return paquete.Peso <= CapacidadMaximaCarga;
+        }
 
     }
     class Automovil : Vehiculo
@@ -504,8 +583,8 @@ namespace GoXelaDelivery
                 }
             }
         }
-        public Automovil(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo, string placa)
-            : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
+        public Automovil(int codigo, string marca, string modelo, string estado, string placa)
+            : base(codigo, marca, modelo, 250, estado, 35)
         {
             Placa = placa;
         }
@@ -527,7 +606,7 @@ namespace GoXelaDelivery
         }
 
     }
-    class Moticicleta : Vehiculo
+    class Motocicleta : Vehiculo
     {
         private string placa;
 
@@ -542,8 +621,8 @@ namespace GoXelaDelivery
                 }
             }
         }
-        public Moticicleta(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo, string placa)
-            : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
+        public Motocicleta(int codigo, string marca, string modelo, string estado, string placa)
+            : base(codigo, marca, modelo, 30, estado, 15)
         {
             Placa = placa;
         }
@@ -563,11 +642,15 @@ namespace GoXelaDelivery
         {
             return CostoOperativo + 25;
         }
+        public override bool PuedeTransportar(Paquete paquete)
+        {
+            return base.PuedeTransportar(paquete) && !(paquete is ProductoRefrigerado);
+        }
     }
     class Bicicleta : Vehiculo
     {
-        public Bicicleta(int codigo, string marca, string modelo, double capacidadMax, string estado, double costoOperativo)
-            : base(codigo, marca, modelo, capacidadMax, estado, costoOperativo)
+        public Bicicleta(int codigo, string marca, string modelo, string estado)
+            : base(codigo, marca, modelo, 10, estado, 15)
         {
 
         }
@@ -585,6 +668,10 @@ namespace GoXelaDelivery
         public override double CalcularTarifaVehiculo()
         {
             return CostoOperativo + 10;
+        }
+        public override bool PuedeTransportar(Paquete paquete)
+        {
+            return base.PuedeTransportar(paquete) && !(paquete is ProductoRefrigerado);
         }
     }
     class Paquete
@@ -706,9 +793,9 @@ namespace GoXelaDelivery
         {
             Estado = nuevoEstado;
         }
-        public virtual void CalcularCostoEnvio()
+        public virtual double CalcularCostoEnvio()
         {
-            
+            return Peso * 2.0;
         }
 
     }
@@ -721,7 +808,10 @@ namespace GoXelaDelivery
         }
 
 
-
+        public override double CalcularCostoEnvio()
+        {
+            return base.CalcularCostoEnvio() + 15.0;
+        }
     }
     class PaqueteFragil : Paquete
     {
@@ -731,6 +821,11 @@ namespace GoXelaDelivery
 
         }
 
+
+        public override double CalcularCostoEnvio()
+        {
+            return base.CalcularCostoEnvio() + 10.0;
+        }
     }
     class PaqueteEstandar : Paquete
     {
@@ -746,6 +841,11 @@ namespace GoXelaDelivery
             : base(codigo, descripcion, peso, valorDeclarado, direccionOrigen, direccionDestino, estado)
         {
 
+        }
+
+        public override double CalcularCostoEnvio()
+        {
+            return 5.0;
         }
     }
     class Incidencias
@@ -769,11 +869,7 @@ namespace GoXelaDelivery
             set { estado = value; }
         }
 
-        public DateTime Fecha
-        {
-            get { return fecha; }
-            set { fecha = value; }
-        }
+        public DateTime Fecha { get; set; }
 
         public string Descripcion
         {
@@ -792,12 +888,12 @@ namespace GoXelaDelivery
             get { return codigo; }
             set { codigo = value; }
         }
-        public Incidencias(int codigo, string tipo, string descripcion, DateTime fecha, string estado, string accionTomada)
+        public Incidencias(int codigo, string tipo, string descripcion, string estado, string accionTomada)
         {
             Codigo = codigo;
             Tipo = tipo;
             Descripcion = descripcion;
-            Fecha = fecha;
+            Fecha = DateTime.Now;
             Estado = estado;
             AccionTomada = accionTomada;
         }
@@ -807,10 +903,10 @@ namespace GoXelaDelivery
             Console.WriteLine();
             Console.WriteLine($"{"Tipo:",-25} {Tipo}");
             Console.WriteLine($"{"Descripción:",-25} {Descripcion}");
-            Console.WriteLine($"{"Fecha:",-25} {Fecha}");
+            Console.WriteLine($"{"Fecha:",-25} {Fecha:yyyy-MM-dd HH:mm:ss}");
             Console.WriteLine($"{"Estado:",-25} {Estado}");
             Console.WriteLine($"{"Acción tomada:",-25} {AccionTomada}");
-            Console.WriteLine("--------------------------------------------\n");
+            Console.WriteLine("----------------------------------------------------\n");
         }
     }
 
@@ -822,38 +918,49 @@ namespace GoXelaDelivery
             List<Cliente> Clientes = new List<Cliente>();
             List<Repartidor> Repartidores = new List<Repartidor>();
             List<Automovil> Automoviles = new List<Automovil>();
-            List<Moticicleta> Motocicletas = new List<Moticicleta>();
+            List<Motocicleta> Motocicletas = new List<Motocicleta>();
             List<Bicicleta> Bicicletas = new List<Bicicleta>();
             List<Paquete> Paquetes = new List<Paquete>();
             List<Documento> Documentos = new List<Documento>();
             List<PaqueteEstandar> PaquetesEstandar = new List<PaqueteEstandar>();
             List<PaqueteFragil> PaquetesFragiles = new List<PaqueteFragil>();
             List<ProductoRefrigerado> ProductosRefrigerados = new List<ProductoRefrigerado>();
-            List<Entrega> Entregass = new List<Entrega>();
             List<Incidencias> IncidenciasList = new List<Incidencias>();
             List<Entrega> Entregas = new List<Entrega>();
 
+            // datos de prueba
+
+            Clientes.Add(new Cliente(1, "Miqueas", "44904473", "miqueas@gmail.com", "Zona 2 Xela", 0));
+            Repartidores.Add(new Repartidor(1, "Juan Perez", "12345678", "LIC12345", "B", "Disponible", 0, 0));
+            Automoviles.Add(new Automovil(1, "Toyota", "Camry", "Disponible", "PLACA123"));
+            Motocicletas.Add(new Motocicleta(1, "Honda", "Chart", "Disponible", "PLACA456"));
+            Bicicletas.Add(new Bicicleta(1, "Trek", "Marlin", "Disponible"));
+            Documentos.Add(new Documento(1, "Documento importante", 0.5, 100, "Zona 1", "Zona 2", "Pendiente"));
+            PaquetesEstandar.Add(new PaqueteEstandar(1, "Paquete estándar", 2, 200, "Zona 3", "Zona 4", "Pendiente"));
+            PaquetesFragiles.Add(new PaqueteFragil(1, "Paquete frágil", 1, 100, "Zona 5", "Zona 6", "Pendiente"));
+            ProductosRefrigerados.Add(new ProductoRefrigerado(1, "Producto refrigerado", 0.5, 100, "Zona 7", "Zona 8", "Pendiente"));
 
             int opcion;
             do
             {
                 Console.Clear();
-                opcion = ValidacionEntradas("========================================\r\n GOXELA DELIVERY\r\n========================================\r\n1. Gestión de clientes\r\n2. Gestión de repartidores\r\n3. Gestión de vehículos\r\n4. Gestión de paquetes\r\n5. Gestión de entregas\r\n6. Gestión de incidencias\r\n7. Reportes\r\n8. Salir\nIngrese una opción: ", 1, 8, "Opción fuera del rango");
+                opcion = ValidacionEntradas("========================================\r\n          GOXELA DELIVERY\r\n========================================\r\n\n1. Gestión de clientes\r\n2. Gestión de repartidores\r\n3. Gestión de vehículos\r\n4. Gestión de paquetes\r\n5. Gestión de entregas\r\n6. Gestión de incidencias\r\n7. Reportes\r\n8. Salir\n\nIngrese una opción: ", 1, 8, "Opción fuera del rango");
                 switch (opcion)
                 {
                     case 1:
+
                         int opcionCliente;
 
                         do
                         {
                             Console.Clear();
-                            
+
                             opcionCliente = ValidacionEntradas("CLIENTES\n\n1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal\n\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionCliente)
                             {
                                 case 1:
                                     Console.Clear();
-                                    int contadorCodigo = Clientes.Count + 1;
+
 
                                     Console.Write("Ingrese nombre cliente: ");
                                     string nombre = Console.ReadLine();
@@ -904,11 +1011,11 @@ namespace GoXelaDelivery
                                     string direccion = Console.ReadLine();
 
                                     Console.Clear();
-                                    int confirmacionCliente = ValidacionEntradas($"Resumen de datos:\n \nNombre: {nombre}\nNúmero de teléfono: {numeroTelefono}\nCorreo electronico: {correoElectronico}\nDirección: {direccion}\n\n¿Esta seguro que desea agreagar CLI-{contadorCodigo}?\n1. Sí\n2. No\nIngrese una opción: ",1, 2, "Erro: Opción no valida");
-                                    if(confirmacionCliente == 1)
+                                    int confirmacionCliente = ValidacionEntradas($"Resumen de datos:\n \nNombre: {nombre}\nNúmero de teléfono: {numeroTelefono}\nCorreo electronico: {correoElectronico}\nDirección: {direccion}\n\n¿Esta seguro que desea registrar nuevo cliente?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Erro: Opción no valida");
+                                    if (confirmacionCliente == 1)
                                     {
                                         Console.Clear();
-                                        Clientes.Add(new Cliente(contadorCodigo, nombre, numeroTelefono, correoElectronico, direccion, 0));
+                                        Clientes.Add(new Cliente(nombre, numeroTelefono, correoElectronico, direccion, 0));
                                         MostrarAnimacionPuntos();
 
                                     }
@@ -918,11 +1025,11 @@ namespace GoXelaDelivery
                                         MostrarErrorAnimado("Operación cancelada");
                                         break;
                                     }
- 
+
                                     break;
                                 case 2:
                                     Console.Clear();
-                                    if(Clientes.Count == 0)
+                                    if (Clientes.Count == 0)
                                     {
                                         Console.Clear();
                                         MostrarErrorAnimado("No hay clientes registrados");
@@ -945,7 +1052,7 @@ namespace GoXelaDelivery
 
                                     int codigoClienteActualizar = ValidacionEntradas("Ingrese el codigo del cliente: CLI-", 1, int.MaxValue, "Cliente no encontrado");
                                     int indiceCliente = -1;
-                                    for(int i = 0; i<Clientes.Count; i++)
+                                    for (int i = 0; i < Clientes.Count; i++)
                                     {
                                         if (Clientes[i].Codigo == codigoClienteActualizar)
                                         {
@@ -953,7 +1060,7 @@ namespace GoXelaDelivery
                                             break;
                                         }
                                     }
-                                    if (indiceCliente == -1) 
+                                    if (indiceCliente == -1)
                                     {
                                         MostrarErrorAnimado("Cliente no encontrado");
                                         Console.ReadKey();
@@ -995,7 +1102,7 @@ namespace GoXelaDelivery
                                                             MostrarErrorAnimado("Error: Número de teléfono inválido. Debe tener 8 dígitos y solo contener números.");
                                                         }
                                                     }
-                                                   
+
                                                     break;
                                                 case 2:
                                                     Console.Clear();
@@ -1006,7 +1113,7 @@ namespace GoXelaDelivery
                                                         {
                                                             Console.Write("Ingrese su usuario de correo: ");
                                                             correoClienteNuevo = Console.ReadLine();
-                                                            if (!string.IsNullOrWhiteSpace(correoClienteNuevo) && !correoClienteNuevo.Contains("@")) 
+                                                            if (!string.IsNullOrWhiteSpace(correoClienteNuevo) && !correoClienteNuevo.Contains("@"))
                                                             {
                                                                 break;
                                                             }
@@ -1058,12 +1165,11 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            opcionRepartidor = ValidacionEntradas("REPARTIDORES\n\n1. Registrar\n2. Consultar\n3. Actualizar información\n4. Volver al menu principal\n\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
+                            opcionRepartidor = ValidacionEntradas("REPARTIDORES\n\n1. Registrar\n2. Consultar\n3. Actualizar estado\n4. Volver al menu principal\n\nIngrese una opción: ", 1, 4, "Opción fuera del rango");
                             switch (opcionRepartidor)
                             {
                                 case 1:
                                     Console.Clear();
-                                    int contadorRepartidores = Repartidores.Count + 1;
                                     Console.Write("Ingrese nombre repartidor: ");
                                     string repartidorNombre = Console.ReadLine();
                                     Console.Clear();
@@ -1140,7 +1246,7 @@ namespace GoXelaDelivery
                                             estadoRepartidor = "Disponible";
                                             break;
                                         }
-                                        else if(estadoRepartidorIn == 2)
+                                        else if (estadoRepartidorIn == 2)
                                         {
                                             estadoRepartidor = "Asignado";
                                             break;
@@ -1153,11 +1259,11 @@ namespace GoXelaDelivery
                                     }
                                     Console.Clear();
 
-                                    int confirmacionRepartidor = ValidacionEntradas($"Resumen de datos: \n \nNombre: {repartidorNombre}\nNúmero: {numeroRepartidor}\nNúmero de licencia: {numeroLicencia}\nTipo de licencia: {tipoLicencia}\nEstado: {estadoRepartidor}\n\nConfirmar registro de REP-{contadorRepartidores}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Opción no valida");
-                                    if(confirmacionRepartidor == 1)
+                                    int confirmacionRepartidor = ValidacionEntradas($"Resumen de datos: \n \nNombre: {repartidorNombre}\nNúmero: {numeroRepartidor}\nNúmero de licencia: {numeroLicencia}\nTipo de licencia: {tipoLicencia}\nEstado: {estadoRepartidor}\n\n¿Esta seguro que desea registrar nuevo repartidor?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Opción no valida");
+                                    if (confirmacionRepartidor == 1)
                                     {
                                         Console.Clear();
-                                        Repartidores.Add(new Repartidor(contadorRepartidores, repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, 0, 0));
+                                        Repartidores.Add(new Repartidor(repartidorNombre, numeroRepartidor, numeroLicencia, tipoLicencia, estadoRepartidor, 0, 0));
                                         MostrarAnimacionPuntos();
                                     }
                                     else
@@ -1299,7 +1405,7 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
                                                 string modelo = Console.ReadLine();
-                                                double capacidadMaxima = 250.00;
+
                                                 Console.Clear();
                                                 string estadoAutomovil;
                                                 while (true)
@@ -1321,12 +1427,12 @@ namespace GoXelaDelivery
                                                         break;
                                                     }
                                                 }
-                                                double costoOperativo = 35.00;
-                                                int confirmacionAutomovil = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaAutomovil}\nMarca: {marca}\nModelo: {modelo}\nCapacidad maxima: {capacidadMaxima}\nEstado: {estadoAutomovil}\n\nConfirmar registro de AUTO-{codigoAuto}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
-                                                if(confirmacionAutomovil == 1)
+
+                                                int confirmacionAutomovil = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaAutomovil}\nMarca: {marca}\nModelo: {modelo}\nEstado: {estadoAutomovil}\n\nConfirmar registro de AUTO-{codigoAuto}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                if (confirmacionAutomovil == 1)
                                                 {
                                                     Console.Clear();
-                                                    Automoviles.Add(new Automovil(codigoAuto, marca, modelo, capacidadMaxima, estadoAutomovil, costoOperativo, placaAutomovil));
+                                                    Automoviles.Add(new Automovil(codigoAuto, marca, modelo, estadoAutomovil, placaAutomovil));
                                                     MostrarAnimacionPuntos();
 
                                                 }
@@ -1334,13 +1440,13 @@ namespace GoXelaDelivery
                                                 {
                                                     Console.Clear();
                                                     MostrarErrorAnimado("Operación cancelada.");
+                                                    Console.ReadKey();
                                                     break;
                                                 }
-                                                Console.ReadKey();
                                                 break;
                                             case 2:
                                                 Console.Clear();
-                                                int codigoMoticicleta = Motocicletas.Count + 1;
+                                                int codigoMotocicleta = Motocicletas.Count + 1;
                                                 Console.Write("Ingrese placa: ");
                                                 string placaMoto = Console.ReadLine();
                                                 Console.Clear();
@@ -1349,18 +1455,18 @@ namespace GoXelaDelivery
                                                 Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
                                                 string modeloMoto = Console.ReadLine();
-                                                double capacidadMaximaMoto = 30.00;
+
                                                 Console.Clear();
                                                 string estadoMotocicleta;
                                                 while (true)
                                                 {
-                                                    int opcionMoticicleta = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
-                                                    if (opcionMoticicleta == 1)
+                                                    int opcionMotocicleta = ValidacionEntradas("Seleccione estado: \n1. Disponible\n2. Asignado\n3. En mantenimiento\n >", 1, 3, "Opción invalida");
+                                                    if (opcionMotocicleta == 1)
                                                     {
                                                         estadoMotocicleta = "Disponible";
                                                         break;
                                                     }
-                                                    else if (opcionMoticicleta == 1)
+                                                    else if (opcionMotocicleta == 1)
                                                     {
                                                         estadoMotocicleta = "Asignado";
                                                         break;
@@ -1371,21 +1477,21 @@ namespace GoXelaDelivery
                                                         break;
                                                     }
                                                 }
-                                                double costoOperativoMoto = 15.00;
+
                                                 Console.Clear();
-                                                int confirmacionMotocicleta = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaMoto}\nMarca: {marcaMoto}\nModelo: {modeloMoto}\nCapacidad maxima: {capacidadMaximaMoto}\nEstado: {estadoMotocicleta}\nCosto operativo: {costoOperativoMoto}\n\n¿Esta seguro que desea registrar MOT-{codigoMoticicleta}?\n1. Sí. \n2. No.\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                int confirmacionMotocicleta = ValidacionEntradas($"Resumen de datos: \n\nPlaca: {placaMoto}\nMarca: {marcaMoto}\nModelo: {modeloMoto}\nEstado: {estadoMotocicleta}\n\n¿Esta seguro que desea registrar MOT-{codigoMotocicleta}?\n1. Sí. \n2. No.\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
                                                 if (confirmacionMotocicleta == 1)
                                                 {
                                                     Console.Clear();
-                                                    Motocicletas.Add(new Moticicleta(codigoMoticicleta, marcaMoto, modeloMoto, capacidadMaximaMoto, estadoMotocicleta, costoOperativoMoto, placaMoto));
+                                                    Motocicletas.Add(new Motocicleta(codigoMotocicleta, marcaMoto, modeloMoto, estadoMotocicleta, placaMoto));
                                                     MostrarAnimacionPuntos();
                                                 }
                                                 else
                                                 {
                                                     MostrarErrorAnimado("Operación cancelada.");
+                                                    Console.ReadKey();
                                                     break;
                                                 }
-                                                Console.ReadKey();
                                                 break;
                                             case 3:
                                                 Console.Clear();
@@ -1394,9 +1500,8 @@ namespace GoXelaDelivery
                                                 string marcaBicicleta = Console.ReadLine();
                                                 Console.Clear();
                                                 Console.Write("Ingrese modelo: ");
-                                                string modeloBicicleta = Console.ReadLine();
+                                                string modeloBicleta = Console.ReadLine();
                                                 Console.Clear();
-                                                double capacidadMaximaBici = 10.00;
                                                 string estadoBicicleta;
                                                 while (true)
                                                 {
@@ -1417,22 +1522,21 @@ namespace GoXelaDelivery
                                                         break;
                                                     }
                                                 }
-                                                double costoOperativoBicicleta = 15.00;
                                                 Console.Clear();
-                                                Console.WriteLine($"Costo operativo: {costoOperativoBicicleta}");
-                                                int confirmacionBicicleta = ValidacionEntradas($"Resumen de datos: \n\n\nMarca: {marcaBicicleta}\nModelo: {modeloBicicleta}\nCapacidad máxima: {capacidadMaximaBici}\nEstado: {estadoBicicleta}\nCosto operativo: {costoOperativoBicicleta}\n\nConfirmar registro de BICI-{codigoBicicleta}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
-                                                if(confirmacionBicicleta == 1)
+
+                                                int confirmacionBicicleta = ValidacionEntradas($"Resumen de datos: \n\n\nMarca: {marcaBicicleta}\nModelo: {modeloBicleta}\nEstado: {estadoBicicleta}\n\nConfirmar registro de BICI-{codigoBicicleta}\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
+                                                if (confirmacionBicicleta == 1)
                                                 {
                                                     Console.Clear();
-                                                    Bicicletas.Add(new Bicicleta(codigoBicicleta, marcaBicicleta, modeloBicicleta, capacidadMaximaBici, estadoBicicleta, costoOperativoBicicleta));
+                                                    Bicicletas.Add(new Bicicleta(codigoBicicleta, marcaBicicleta, modeloBicleta, estadoBicicleta));
                                                     MostrarAnimacionPuntos();
                                                 }
                                                 else
                                                 {
                                                     MostrarErrorAnimado("Operación cancelada.");
+                                                    Console.ReadKey();
                                                     break;
                                                 }
-                                                Console.ReadKey();
                                                 break;
                                             case 4:
                                                 break;
@@ -1477,7 +1581,7 @@ namespace GoXelaDelivery
                                                 {
                                                     Console.WriteLine("Motocicletas: ");
                                                     Console.WriteLine();
-                                                    foreach (Moticicleta motocicleta in Motocicletas)
+                                                    foreach (Motocicleta motocicleta in Motocicletas)
                                                     {
                                                         motocicleta.MostrarInformacion();
                                                         Console.WriteLine();
@@ -1574,7 +1678,7 @@ namespace GoXelaDelivery
                                                     }
                                                     Console.Clear();
                                                     int confirmacionDoc = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete} kg\nValor declarado: ${valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro que desea agregar PAQD-{codigoDocumento}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
-                                                    if(confirmacionDoc == 1)
+                                                    if (confirmacionDoc == 1)
                                                     {
                                                         Console.Clear();
                                                         Documentos.Add(new Documento(codigoDocumento, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
@@ -1632,7 +1736,7 @@ namespace GoXelaDelivery
                                                     }
                                                     Console.Clear();
                                                     int confirmacionEstandar = ValidacionEntradas($"Resumen de datos: \n\nDescripción: {descripcionPaquete}\nPeso: {pesoPaquete}kg\nValor declarado: ${valorDeclarado}\nDirección de origen: {direccionOrigen}\nDirección de destino: {direccionDestino}\nEstado: {estadoPaquete}\n\n¿Esta seguro que desea registrar PAQE-{codigoPaqueteEstandar}?\n1. Sí\n2. No\nIngrese una opción: ", 1, 2, "Error: Opción no valida");
-                                                    if(confirmacionEstandar == 1)
+                                                    if (confirmacionEstandar == 1)
                                                     {
                                                         Console.Clear();
                                                         PaquetesEstandar.Add(new PaqueteEstandar(codigoPaqueteEstandar, descripcionPaquete, pesoPaquete, valorDeclarado, direccionOrigen, direccionDestino, estadoPaquete));
@@ -1762,7 +1866,7 @@ namespace GoXelaDelivery
                                                         break;
                                                     }
                                                 }
-                                                
+
                                                 break;
                                             case 5:
                                                 break;
@@ -1909,177 +2013,194 @@ namespace GoXelaDelivery
                         break;
                     case 5:
                         Console.Clear();
-                        int option, option2, entregasPendientes = 0, entregasCumplidas = 0, entregas = 0, codigoCliente, codigoProducto, codigoRepartidor, codigoVehiculo, tipoServicio, codigoEntrega;
-                        bool encontrado = false;
-                        string direccionInicial, direccionFinal, servicio;
-                        double distancia, peso=0;
+                        int opcionEntregasSwitch;
+                        int entregasPendientes = 0, entregasCumplidas = 0, tipoServicio;
+
                         do
                         {
-                            Console.WriteLine("GESTIÓN DE ENTREGAS\n1. Generar nueva entrega\n2. Ver entregas pendientes\n3. Ver entregas cumplidas\n4. Buscar entrega específica\n5. Mostrar total de entregas\n6. Actualizar estado de entrega\n7. Regresar\nIngrese una opción:");
-                            option = ValidarEntero();
-                            switch (option)
+                            Console.Clear();
+                            opcionEntregasSwitch = ValidacionEntradas("GESTIÓN DE ENTREGAS\n\n1. Generar nueva entrega\n2. Ver entregas pendientes\n3. Ver entregas cumplidas\n4. Buscar entrega específica\n5. Mostrar total de entregas\n6. Actualizar estado de entrega\n7. Regresar\n\nIngrese una opción: ", 1, 7, "Error: opción no valida");
+                            switch (opcionEntregasSwitch)
                             {
                                 case 1:
+                                    Console.Clear();
+                                    int codigoPaquete = Entregas.Count + 1;
                                     Console.WriteLine("Listado de clientes:");
                                     foreach (Cliente clien in Clientes)
                                     {
-                                        Console.WriteLine($"Código: {clien.Codigo}");
+                                        Console.WriteLine($"Código: CLI-{clien.Codigo}");
                                         Console.WriteLine($"Nombre: {clien.NombreCompleto}");
                                     }
-                                    do
+                                    Console.ReadKey();
+                                    Console.WriteLine();
+                                    int codigoClienteRelacion = ValidacionEntradas("Ingrese el código del cliente para relacionarlo con la entrega:CLI-", 1, int.MaxValue, "Error: cliente no valido");
+                                    int indiceRelacion = -1;
+                                    for (int i = 0; i < Clientes.Count; i++)
                                     {
-                                        Console.WriteLine("Ingrese el código del cliente:");
-                                        codigoCliente = ValidarEntero();
-                                        foreach (Cliente clien in Clientes)
+                                        if (Clientes[i].Codigo == codigoClienteRelacion)
                                         {
-                                            if (clien.Codigo == codigoCliente)
-                                            {
-                                                encontrado = true;
-                                            }
-                                        }
-                                        if (encontrado == false)
-                                        {
-                                            Console.WriteLine("Error: cliente no encontrado");
-                                        }
-                                        else
-                                        {
+                                            indiceRelacion = i;
                                             break;
                                         }
-                                    } while (true);
-                                    Console.WriteLine("Ingrese la dirección de origen:");
-                                    direccionInicial = Console.ReadLine();
-                                    Console.WriteLine("Ingrese la dirección de destino:");
-                                    direccionFinal = Console.ReadLine();
-                                    distancia = ValidacionEntradasDouble("Ingrese la distancia aproximada (en kilómetros):", 1, 100, "Error: el dato debe ser numérico y estar entre 1 y 100");
-                                    Console.WriteLine("Tipo de servicio:\n1. Normal\n2. Prioritario\n3. Urgente");
-                                    tipoServicio = ValidacionEntradas("Ingrese una opción:", 1, 3, "Error: dato incorrecto o fuera de rango");
-                                    if (tipoServicio == 1)
-                                    {
-                                        servicio = "Normal";
                                     }
-                                    else if (tipoServicio == 2)
+                                    if (indiceRelacion == -1)
                                     {
-                                        servicio = "Prioritario";
+                                        MostrarErrorAnimado("Error: cliente no encontrado");
+                                        break;
                                     }
-                                    else
-                                    {
-                                        servicio = "Urgente";
-                                    }
-                                    option2 = ValidacionEntradas("Ingrese el tipo de paquete:\n1. Documento\n2. Estándar\n3. Fragil\n4. Refrigerado\nIngrese una opción:", 1, 4, "Error: dato fuera de rango");
-                                    switch (option2)
+                                    Cliente clienteSeleccionado = Clientes[indiceRelacion];
+                                    Console.Clear();
+
+                                    int indicePaqueteRelacion = -1;
+                                    int tipoPaqueteRelacion;
+                                    string tipoPaqueteS = "";
+                                    Paquete paqueteSeleccionado = null;
+
+                                    tipoPaqueteRelacion = ValidacionEntradas($"Tipo de paquete: \n1. Documento\n2. Estándar\n3. Fragil\n4. Refrigerado\n\nIngrese una opción: ", 1, 4, "Error: dato fuera de rango");
+
+                                    switch (tipoPaqueteRelacion)
                                     {
                                         case 1:
-                                            Console.WriteLine("Listado de documentos:");
+                                            Console.Clear();
+                                            Console.WriteLine("Documentos: ");
+                                            Console.WriteLine();
                                             foreach (Documento doc in Documentos)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
+                                                Console.WriteLine($"Codigo: DOC-{doc.Codigo}");
+                                                Console.WriteLine($"Descripción: {doc.Descripcion}");
                                             }
-                                            Console.WriteLine();
-                                            do
+                                            Console.ReadKey();
+                                            Console.Clear();
+                                            int codigoDoc = ValidacionEntradas("Ingrese el código del documento: DOC-", 1, int.MaxValue, "Error: código incorrecto");
+                                            for (int i = 0; i < Documentos.Count; i++)
                                             {
-                                                Console.WriteLine("Ingrese el código del paquete: PAQ-");
-                                                codigoProducto = ValidarEntero();
-                                                foreach (Documento doc in Documentos)
+                                                if (Documentos[i].Codigo == codigoDoc)
                                                 {
-                                                    if (codigoProducto == doc.Codigo)
-                                                    {
-                                                        encontrado = true;
-                                                        peso = doc.Peso;
-                                                    }
+                                                    indicePaqueteRelacion = i;
+                                                    paqueteSeleccionado = Documentos[i];
+                                                    tipoPaqueteS = "Documento";
+                                                    break;
                                                 }
-                                                if (encontrado == false)
-                                                {
-                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
-                                                }
-                                            } while (!encontrado);
-                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0,0,0));
+                                            }
                                             break;
                                         case 2:
-                                            Console.WriteLine("Listado de paquetes estándar:");
-                                            foreach (PaqueteEstandar pac in PaquetesEstandar)
-                                            {
-                                                Console.WriteLine($"Descripción: {pac.Descripcion}\nCódigo: {pac.Codigo}\nPeso: {pac.Peso}");
-                                            }
+                                            Console.Clear();
+                                            Console.WriteLine("Paquetes estandar: ");
                                             Console.WriteLine();
-                                            do
+                                            foreach (PaqueteEstandar paque in PaquetesEstandar)
                                             {
-                                                Console.WriteLine("Ingrese el código del paquete: PAQ-") ;
-                                                codigoProducto = ValidarEntero();
-                                                foreach (PaqueteEstandar doc in PaquetesEstandar)
+                                                Console.WriteLine($"Codigo: PAQE-{paque.Codigo}");
+                                                Console.WriteLine($"Descripción: {paque.Descripcion}");
+                                            }
+                                            Console.ReadKey();
+                                            Console.Clear();
+
+                                            int codigoEstandar = ValidacionEntradas("Ingrese el código del paquete estándar: PAQE-", 1, int.MaxValue, "Error: código incorrecto");
+                                            for (int i = 0; i < PaquetesEstandar.Count; i++)
+                                            {
+                                                if (PaquetesEstandar[i].Codigo == codigoEstandar)
                                                 {
-                                                    if (codigoProducto == doc.Codigo)
-                                                    {
-                                                        encontrado = true;
-                                                        peso = doc.Peso;
-                                                    }
+                                                    indicePaqueteRelacion = i;
+                                                    paqueteSeleccionado = PaquetesEstandar[i];
+                                                    tipoPaqueteS = "Estandar";
+                                                    break;
                                                 }
-                                                if (encontrado == false)
-                                                {
-                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
-                                                }
-                                            } while (!encontrado);
-                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0, 0, 0));
+                                            }
                                             break;
                                         case 3:
-                                            Console.WriteLine("Listado de paquetes frágiles:");
-                                            foreach (PaqueteFragil doc in PaquetesFragiles)
+                                            Console.Clear();
+                                            Console.WriteLine("Paquetes fragiles: ");
+                                            Console.WriteLine();
+                                            foreach (PaqueteFragil paquef in PaquetesFragiles)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
+                                                Console.WriteLine($"Codigo: PAQF-{paquef.Codigo}");
+                                                Console.WriteLine($"Descripción: {paquef.Descripcion}");
                                             }
-                                            do
+                                            Console.ReadKey();
+                                            Console.Clear();
+                                            int codigoFragil = ValidacionEntradas("Ingrese el código del paquete frágil: PAQF-", 1, int.MaxValue, "Error: código incorrecto");
+                                            for (int i = 0; i < PaquetesFragiles.Count; i++)
                                             {
-                                                Console.WriteLine("Ingrese el código del paquete: PAQ-");
-                                                codigoProducto = ValidarEntero();
-                                                foreach (PaqueteFragil doc in PaquetesFragiles)
+                                                if (PaquetesFragiles[i].Codigo == codigoFragil)
                                                 {
-                                                    if (codigoProducto == doc.Codigo)
-                                                    {
-                                                        encontrado = true;
-                                                        peso = doc.Peso;
-                                                    }
+                                                    indicePaqueteRelacion = i;
+                                                    paqueteSeleccionado = PaquetesFragiles[i];
+                                                    tipoPaqueteS = "Fragil";
+                                                    break;
                                                 }
-                                                if (encontrado == false)
-                                                {
-                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
-                                                }
-                                            } while (!encontrado);
-                                            Entregas.Add(new Entrega(DateTime.Now, 123, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Documento", servicio), 0, 0, 0));
+                                            }
                                             break;
                                         case 4:
-                                            Console.WriteLine("Listado de paquetes refrigerados:");
-                                            foreach (ProductoRefrigerado doc in ProductosRefrigerados)
+                                            Console.Clear();
+                                            Console.WriteLine("Producotos refrigerados: ");
+                                            Console.WriteLine();
+                                            foreach (ProductoRefrigerado paquere in ProductosRefrigerados)
                                             {
-                                                Console.WriteLine($"Descripción: {doc.Descripcion}\nCódigo: {doc.Codigo}\nPeso: {doc.Peso}");
+                                                Console.WriteLine($"Codigo: PAQR-{paquere.Codigo}");
+                                                Console.WriteLine($"Descripción: {paquere.Descripcion}");
                                             }
-                                            do
+                                            Console.ReadKey();
+                                            Console.Clear();
+                                            int codigoRefrigerado = ValidacionEntradas("Ingrese el código del paquete refrigerado: PAQR-", 1, int.MaxValue, "Error: código incorrecto");
+                                            for (int i = 0; i < ProductosRefrigerados.Count; i++)
                                             {
-                                                Console.Write("Ingrese el código del paquete: PAQ-");
-                                                codigoProducto = ValidarEntero();
-                                                encontrado = false;
-                                                foreach (ProductoRefrigerado doc in ProductosRefrigerados)
+                                                if (ProductosRefrigerados[i].Codigo == codigoRefrigerado)
                                                 {
-                                                    if (codigoProducto == doc.Codigo)
-                                                    {
-                                                        encontrado = true;
-                                                        peso = doc.Peso;
-                                                    }
+                                                    indicePaqueteRelacion = i;
+                                                    paqueteSeleccionado = ProductosRefrigerados[i];
+                                                    tipoPaqueteS = "Refrigerado";
+                                                    break;
                                                 }
-                                                if (!encontrado)
-                                                {
-                                                    Console.WriteLine("Error: código incorrecto... producto no encontrado");
-                                                }
-                                            } while (!encontrado);
-                                            Entregas.Add(new Entrega(DateTime.Now, codigoCliente, direccionInicial, direccionFinal, distancia, servicio, "Solicitada", CalcularTarifaBase(peso, distancia, "Refrigerado", servicio), 0, 0, 0));
-                                            Console.WriteLine("Entrega solicitada con éxito");
+                                            }
                                             break;
                                     }
+
+                                    if (indicePaqueteRelacion == -1 || paqueteSeleccionado == null)
+                                    {
+                                        MostrarErrorAnimado("Error: paquete no encontrado");
+                                        break;
+                                    }
+
+                                    bool paqueteYaEnUso = false;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if (ent.PaqueteAEnviar != null && ent.PaqueteAEnviar == paqueteSeleccionado)
+                                        {
+                                            if (ent.Estado != "Entregada" && ent.Estado != "Cancelada")
+                                            {
+                                                paqueteYaEnUso = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (paqueteYaEnUso)
+                                    {
+                                        MostrarErrorAnimado("Error: El paquete seleccionado ya se encuentra asignado a una entrega activa.");
+                                        break;
+                                    }
+
+                                    double distancia = ValidacionEntradasDouble("Ingrese la distancia aproximada (en kilómetros):", 1, 100, "Error: el dato debe ser numérico y estar entre 1 y 100");
+                                    tipoServicio = ValidacionEntradas("Tipo de servicio:\n1. Normal\n2. Prioritario\n3. Urgente\nIngrese una opción:", 1, 3, "Error: dato incorrecto o fuera de rango");
+                                    string tipoServicioS;
+
+                                    if (tipoServicio == 1) tipoServicioS = "Normal";
+                                    else if (tipoServicio == 2) tipoServicioS = "Prioritario";
+                                    else tipoServicioS = "Urgente";
+
+                                    double tarifaCalculada = CalcularTarifaBase(paqueteSeleccionado.Peso, distancia, tipoPaqueteS, tipoServicioS);
+
+                                    Entregas.Add(new Entrega(codigoPaquete, clienteSeleccionado, paqueteSeleccionado, distancia, tipoServicioS, "Solicitada", tarifaCalculada, 0, 0, 0));
+                                    MostrarAnimacionPuntos();
                                     break;
+
                                 case 2:
+                                    Console.Clear();
                                     Console.WriteLine("ENTREGAS PENDIENTES");
                                     entregasPendientes = 0;
                                     foreach (Entrega ent in Entregas)
                                     {
-                                        if(ent.Estado!="Entregada"&& ent.Estado!="Cancelada")
+                                        if (ent.Estado != "Entregada" && ent.Estado != "Cancelada")
                                         {
                                             ent.MostrarInformacion();
                                             entregasPendientes++;
@@ -2087,192 +2208,378 @@ namespace GoXelaDelivery
                                     }
                                     if (entregasPendientes == 0)
                                     {
-                                        Console.WriteLine("No hay entregas pendientes");
+                                        MostrarErrorAnimado("No hay entregas pendientes");
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"Total de entregas pendientes: {entregasPendientes}");
+                                        Console.WriteLine($"\nTotal de entregas pendientes: {entregasPendientes}");
                                     }
+                                    Console.ReadKey();
                                     break;
                                 case 3:
+                                    Console.Clear();
                                     Console.WriteLine("ENTREGAS CUMPLIDAS");
-                                    {
-                                        entregasCumplidas = 0;
-                                        foreach (Entrega ent in Entregas)
-                                        {
-                                            if(ent.Estado=="Entregada")
-                                            {
-                                                ent.MostrarInformacion();
-                                                entregasCumplidas++;
-                                            }
-                                        }
-                                        if(entregasCumplidas==0)
-                                        {
-                                            Console.WriteLine("No hay entegas cumplidas");
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine($"Total de entegas cumplidas: {entregasCumplidas}");
-                                        }
-                                    }
-                                    break;
-                                case 4:
-                                    Console.WriteLine("BUSCAR ENTREGA ESPECÍFICA");
-                                    Console.Write("Ingrese el código de la entrega: ENT-");
-                                    codigoEntrega = ValidarEntero();
-                                    encontrado = false;
-                                    foreach(Entrega ent in Entregas)
-                                    {
-                                        if(ent.Codigo==codigoEntrega)
-                                        {
-                                            ent.MostrarInformacion();
-                                            encontrado = true;
-                                            break;
-                                        }
-                                    }
-                                    if(!encontrado)
-                                    {
-                                        Console.WriteLine("Error: entrega no encontrada");
-                                    }
-                                    break;
-                                case 5:
-                                    
-                                    break;
-                                case 6:
-                                    Console.WriteLine("ACTUALIZAR ESTADO DE ENTREGA");
-                                    Console.WriteLine("Ingrese el código de la entrega a actualizar:");
-                                    codigoEntrega= ValidarEntero();
-                                    encontrado = false;
-                                    Entrega actualizar=null;
+                                    entregasCumplidas = 0;
                                     foreach (Entrega ent in Entregas)
                                     {
-                                        if(ent.Codigo==codigoEntrega)
+                                        if (ent.Estado == "Entregada")
                                         {
-                                            encontrado = true;
-                                            actualizar = ent;
+                                            ent.MostrarInformacion();
+                                            entregasCumplidas++;
+                                        }
+                                    }
+                                    if (entregasCumplidas == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay entregas cumplidas");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"\nTotal de entregas cumplidas: {entregasCumplidas}");
+                                    }
+                                    Console.ReadKey();
+                                    break;
+
+                                case 4:
+                                    Console.Clear();
+                                    Console.WriteLine("BUSCAR ENTREGA ESPECÍFICA");
+                                    int codigoEntregaBuscar = ValidacionEntradas("Ingrese el código de la entrega a buscar: ENT-", 1, int.MaxValue, "Error: entrega no encontrada");
+                                    int indiceEntregaBuscar = -1;
+                                    for (int i = 0; i < Entregas.Count; i++)
+                                    {
+                                        if (Entregas[i].Codigo == codigoEntregaBuscar)
+                                        {
+                                            indiceEntregaBuscar = i;
                                             break;
                                         }
                                     }
-                                    if (encontrado)
+                                    if (indiceEntregaBuscar == -1)
                                     {
-                                        Console.WriteLine($"Estado actual:  {actualizar.Estado}");
-                                        Console.WriteLine("Seleccione el nuevo estado:\n1. Asignada\n2. Recogida\n3. En ruta\n4. Entregada\nIngrese una opción:");
-                                        int optionEstado = ValidarEntero();
-                                        bool validacion = false;
-                                        switch (optionEstado)
-                                        {
-                                            case 1:
-                                                if(actualizar.Estado=="Solicitado")
-                                                {
-                                                    Console.WriteLine("REPARTIDORES");
-                                                    foreach (Repartidor rep in Repartidores)
-                                                    {
-                                                        if (rep.Disponibilidad == "Disponible")
-                                                        {
-                                                            Console.WriteLine($"Código: REP-{rep.Codigo}\nNombre: {rep.NombreCompleto}");
-                                                        }
-                                                    }
-                                                    Console.Write("Ingrese el código del repartidor que desea asignar: REP-");
-                                                    codigoRepartidor = ValidacionEntradas("Ingrese codigo de repartidor: ", 1, int.MaxValue, "Repartidor no encontrado ");
-
-                                                    int indiceRep = -1;
-                                                    for (int i = 0; i < Repartidores.Count; i++)
-                                                    {
-                                                        if (Repartidores[i].Codigo == codigoRepartidor)
-                                                        {
-                                                            indiceRep = i;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (indiceRep != -1)
-                                                    {
-                                                        actualizar.Estado = "Asignada";
-                                                        Repartidores[indiceRep].actualizarDisponibilidad("Asignado");
-                                                        Console.Clear();
-                                                        MostrarExitoAnimado("Estado actualizado correctamente");
-                                                        Console.ReadKey();
-                                                    }
-                                                    else
-                                                    {
-                                                        MostrarErrorAnimado("Repartidor no encontrado");
-                                                        Console.ReadKey();
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine("Error: La entrega no se puede asignar nuevamente.");
-                                                }
-                                                break;
-                                            case 2:
-                                                if(actualizar.Estado=="Asignada")
-                                                {
-                                                    Console.WriteLine("Ingrese el código del repartidor que recogió el paquete: REP-");
-                                                    codigoRepartidor = ValidacionEntradas("Ingrese codigo de repartidor: ", 1, int.MaxValue, "Repartidor no encontrado ");
-
-                                                    int indiceRep = -1;
-                                                    for (int i = 0; i < Repartidores.Count; i++)
-                                                    {
-                                                        if (Repartidores[i].Codigo == codigoRepartidor)
-                                                        {
-                                                            indiceRep = i;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (indiceRep != -1)
-                                                    {
-                                                        actualizar.Estado = "Recogida";
-                                                        Repartidores[indiceRep].actualizarDisponibilidad("Disponible");
-                                                        Console.Clear();
-                                                        MostrarExitoAnimado("Estado actualizado correctamente");
-                                                        Console.ReadKey();
-                                                    }
-                                                    else
-                                                    {
-                                                        MostrarErrorAnimado("Repartidor no encontrado");
-                                                        Console.ReadKey();
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine("Error: La entrega no puede ser recogida.");
-                                                }
-                                                break;
-                                            case 3:
-                                                if(actualizar.Estado=="Recogida")
-                                                {
-                                                    actualizar.Estado = "En ruta";
-                                                    Console.Clear();
-                                                    MostrarExitoAnimado("Estado actualizado correctamente");
-                                                    Console.ReadKey();
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine("Error: La entrega no puede estar en ruta.");
-                                                }
-                                                break;
-                                            case 4:
-                                                if(actualizar.Estado=="En ruta")
-                                                {
-                                                    string observaciones;
-                                                    Console.Write("Ingrese observaciones de la entrega: ");
-                                                    observaciones = Console.ReadLine();
-                                                    actualizar.Estado = "Entregada";
-                                                    Console.Clear();
-                                                    MostrarExitoAnimado("Estado actualizado correctamente");
-                                                    Console.ReadKey();
-
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine("Error: La entrega no puede marcarse como entregada.");
-                                                }
-                                                break;
-                                        }
+                                        MostrarErrorAnimado("Error: entrega no encontrada");
+                                    }
+                                    else
+                                    {
+                                        Console.Clear();
+                                        Entregas[indiceEntregaBuscar].MostrarInformacion();
                                     }
                                     break;
+
+                                case 5:
+                                    Console.Clear();
+                                    if (Entregas.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay entregas registradas");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"Total de entregas registradas: {Entregas.Count}");
+                                    }
+                                    break;
+
+                                case 6:
+                                    Console.Clear();
+                                    Console.WriteLine("ACTUALIZAR ESTADO DE ENTREGA");
+
+                                    Console.WriteLine();
+                                    Console.WriteLine("Lista de entregas: ");
+
+                                    for (int i = 0; i < Entregas.Count; i++)
+                                    {
+                                        Console.WriteLine($"- ENT-{Entregas[i].Codigo}: {Entregas[i].Estado}");
+                                    }
+                                    Console.ReadKey();
+                                    Console.Clear();
+
+                                    int codigoEntregaActualizar = ValidacionEntradas("Ingrese código de la entrega a actualizar: ENT-", 1, int.MaxValue, "Error: entrega no encontrada");
+                                    int indiceEntregaActualizar = -1;
+
+                                    for (int i = 0; i < Entregas.Count; i++)
+                                    {
+                                        if (Entregas[i].Codigo == codigoEntregaActualizar)
+                                        {
+                                            indiceEntregaActualizar = i;
+                                            break;
+                                        }
+                                    }
+
+                                    if (indiceEntregaActualizar == -1)
+                                    {
+                                        MostrarErrorAnimado("Error: entrega no encontrada");
+                                        break;
+                                    }
+
+                                    Console.Clear();
+                                    Console.WriteLine($"Estado actual: {Entregas[indiceEntregaActualizar].Estado}");
+
+
+                                    if (Entregas[indiceEntregaActualizar].Estado == "Entregada" || Entregas[indiceEntregaActualizar].Estado == "Cancelada")
+                                    {
+                                        Console.WriteLine("Error: No se puede modificar una entrega que ya está finalizada o cancelada.");
+                                        break;
+                                    }
+
+                                    bool estadoActualizadoExitosamente = false;
+                                    do
+                                    {
+                                        Console.Clear();
+                                        Console.WriteLine($"Estado actual: {Entregas[indiceEntregaActualizar].Estado}");
+                                        int opcionEstadoActualizar = ValidacionEntradas("Seleccione el nuevo estado:\n1. Asignada\n2. Recogida\n3. En ruta\n4. Entregada\n5. Volver\nIngrese una opción:", 1, 5, "Error: opción no valida");
+
+                                        if (opcionEstadoActualizar == 5)
+                                        {
+                                            break;
+                                        }
+
+                                        switch (opcionEstadoActualizar)
+                                        {
+                                            case 1:
+                                                if (Entregas[indiceEntregaActualizar].Estado != "Solicitada")
+                                                {
+                                                    MostrarErrorAnimado("Error: Secuencia incorrecta. Solo una entrega 'Solicitada' puede pasar a 'Asignada'.");
+                                                    break;
+                                                }
+                                                Console.Clear();
+                                                Console.WriteLine("Repartidores: ");
+                                                Console.WriteLine();
+                                                foreach (Repartidor rep in Repartidores)
+                                                {
+                                                    Console.WriteLine($"Codigo: REP-{rep.Codigo}");
+                                                    Console.WriteLine($"Nombre: {rep.NombreCompleto}");
+                                                    Console.WriteLine();
+                                                }
+                                                Console.ReadKey();
+                                                Console.Clear();
+                                                int codRep = ValidacionEntradas("Ingrese el código del repartidor a asignar: ", 1, int.MaxValue, "Error: código inválido");
+                                                int indiceRep = -1;
+                                                for (int i = 0; i < Repartidores.Count; i++)
+                                                {
+                                                    if (Repartidores[i].Codigo == codRep) { indiceRep = i; break; }
+                                                }
+
+                                                if (indiceRep == -1)
+                                                {
+                                                    MostrarErrorAnimado("Error: Repartidor no encontrado.");
+                                                    break;
+                                                }
+                                                if (Repartidores[indiceRep].Disponibilidad != "Disponible")
+                                                {
+                                                    MostrarErrorAnimado("Error: El repartidor seleccionado se encuentra ocupado o fuera de servicio.");
+                                                    break;
+                                                }
+
+                                                int tipoVehiculo = ValidacionEntradas("Tipo de vehículo a asignar:\n1. Automóvil\n2. Motocicleta\n3. Bicicleta\nIngrese una opción:", 1, 3, "Error: opción no válida");
+
+                                                switch (tipoVehiculo)
+                                                {
+                                                    case 1:
+                                                        Console.Clear();
+                                                        Console.WriteLine("Automoviles: ");
+                                                        Console.WriteLine();
+                                                        foreach (Automovil auto in Automoviles)
+                                                        {
+                                                            Console.WriteLine($"Codigo: AUT-{auto.Codigo}");
+                                                            Console.WriteLine($"Marca: {auto.Marca}");
+                                                        }
+                                                        Console.ReadKey();
+                                                        Console.Clear();
+                                                        break;
+                                                    case 2:
+                                                        Console.Clear();
+                                                        Console.WriteLine("Motocicletas: ");
+                                                        Console.WriteLine();
+                                                        foreach (Motocicleta moto in Motocicletas)
+                                                        {
+                                                            Console.WriteLine($"Codigo: MOT-{moto.Codigo}");
+                                                            Console.WriteLine($"Marca: {moto.Marca}");
+                                                        }
+                                                        Console.ReadKey();
+                                                        Console.Clear();
+                                                        break;
+                                                    case 3:
+                                                        Console.Clear();
+                                                        Console.WriteLine("Bicicletas: ");
+                                                        Console.WriteLine();
+                                                        foreach (Bicicleta bici in Bicicletas)
+                                                        {
+                                                            Console.WriteLine($"Codigo: BIC-{bici.Codigo}");
+                                                            Console.WriteLine($"Marca: {bici.Marca}");
+                                                        }
+                                                        Console.ReadKey();
+                                                        Console.Clear();
+                                                        break;
+                                                    case 4:
+                                                        break;
+                                                }
+                                                int codVeh = ValidacionEntradas("Ingrese el código del vehículo: ", 1, int.MaxValue, "Error: código inválido");
+
+                                                int indiceVeh = -1;
+                                                string estadoVehiculo = "";
+                                                double capacidadVehiculo = 0;
+                                                object vehiculoSeleccionado = null;
+
+                                                switch (tipoVehiculo)
+                                                {
+                                                    case 1:
+                                                        for (int i = 0; i < Automoviles.Count; i++)
+                                                        {
+                                                            if (Automoviles[i].Codigo == codVeh)
+                                                            {
+                                                                indiceVeh = i;
+                                                                estadoVehiculo = Automoviles[i].Estado;
+                                                                capacidadVehiculo = Automoviles[i].CapacidadMaximaCarga;
+                                                                vehiculoSeleccionado = Automoviles[i];
+                                                                break;
+                                                            }
+                                                        }
+                                                        if (Repartidores[indiceRep].TipoLicencia != "B") { Console.WriteLine("Licencia incompatible."); break; }
+                                                        break;
+                                                    case 2:
+                                                        for (int i = 0; i < Motocicletas.Count; i++)
+                                                        {
+                                                            if (Motocicletas[i].Codigo == codVeh)
+                                                            {
+                                                                indiceVeh = i;
+                                                                estadoVehiculo = Motocicletas[i].Estado;
+                                                                capacidadVehiculo = Motocicletas[i].CapacidadMaximaCarga;
+                                                                vehiculoSeleccionado = Motocicletas[i];
+                                                                break;
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 3:
+                                                        for (int i = 0; i < Bicicletas.Count; i++)
+                                                        {
+                                                            if (Bicicletas[i].Codigo == codVeh)
+                                                            {
+                                                                indiceVeh = i;
+                                                                estadoVehiculo = Bicicletas[i].Estado;
+                                                                capacidadVehiculo = Bicicletas[i].CapacidadMaximaCarga;
+                                                                vehiculoSeleccionado = Bicicletas[i];
+                                                                break;
+                                                            }
+                                                        }
+                                                        break;
+                                                }
+
+                                                if (indiceVeh == -1)
+                                                {
+                                                    MostrarErrorAnimado("Error: Vehículo no encontrado.");
+                                                    break;
+                                                }
+                                                if (estadoVehiculo != "Disponible")
+                                                {
+                                                    MostrarErrorAnimado("Error: El vehículo seleccionado no está disponible.");
+                                                    break;
+                                                }
+
+                                                double pesoDelPaquete = Entregas[indiceEntregaActualizar].PaqueteAEnviar.Peso;
+
+                                                if (!((Vehiculo)vehiculoSeleccionado).PuedeTransportar(Entregas[indiceEntregaActualizar].PaqueteAEnviar))
+                                                {
+                                                    Console.WriteLine("Error de compatibilidad: El vehículo no puede transportar este paquete por peso o tipo.");
+                                                    break;
+                                                }
+
+                                                if (tipoVehiculo == 3 && Entregas[indiceEntregaActualizar].PaqueteAEnviar is ProductoRefrigerado)
+                                                {
+                                                    Console.WriteLine("Error de compatibilidad: No se puede transportar un Producto Refrigerado en una Bicicleta.");
+                                                    break;
+                                                }
+
+
+                                                Entregas[indiceEntregaActualizar].Estado = "Asignada";
+                                                Repartidores[indiceRep].Disponibilidad = "Asignado";
+
+                                                if (tipoVehiculo == 1) Automoviles[indiceVeh].Estado = "Asignado";
+                                                else if (tipoVehiculo == 2) Motocicletas[indiceVeh].Estado = "Asignado";
+                                                else if (tipoVehiculo == 3) Bicicletas[indiceVeh].Estado = "Asignado";
+
+
+                                                Entregas[indiceEntregaActualizar].RepartidorAsignado = Repartidores[indiceRep];
+
+
+                                                Entregas[indiceEntregaActualizar].VehiculoAsignado = (Vehiculo)vehiculoSeleccionado;
+                                                Entregas[indiceEntregaActualizar].CalcularTarifaTotal();
+
+                                                Console.WriteLine("\n¡Repartidor y Vehículo asignados exitosamente!");
+                                                Console.WriteLine("La entrega ha pasado a estado ASIGNADA.");
+                                                Console.ReadKey();
+                                                estadoActualizadoExitosamente = true;
+                                                break;
+
+                                            case 2:
+                                                if (Entregas[indiceEntregaActualizar].Estado != "Asignada")
+                                                {
+                                                    MostrarErrorAnimado("Error: La entrega debe estar 'Asignada' antes de ser 'Recogida'.");
+                                                    break;
+                                                }
+                                                Entregas[indiceEntregaActualizar].Estado = "Recogida";
+                                                Console.WriteLine("¡Entrega actualizada a RECOGIDA!");
+                                                Console.ReadKey();
+                                                estadoActualizadoExitosamente = true;
+                                                break;
+
+                                            case 3:
+                                                if (Entregas[indiceEntregaActualizar].Estado != "Recogida")
+                                                {
+                                                    MostrarErrorAnimado("Error: La entrega debe estar 'Recogida' antes de pasar a 'En ruta'.");
+                                                    break;
+                                                }
+                                                Entregas[indiceEntregaActualizar].Estado = "En ruta";
+                                                if (Entregas[indiceEntregaActualizar].PaqueteAEnviar != null)
+                                                {
+                                                    Entregas[indiceEntregaActualizar].PaqueteAEnviar.ActualizarEstado("En tránsito");
+                                                }
+                                                Console.WriteLine("¡Entrega actualizada a EN RUTA!");
+                                                Console.ReadKey();
+                                                estadoActualizadoExitosamente = true;
+                                                break;
+
+                                            case 4:
+                                                if (Entregas[indiceEntregaActualizar].Estado != "En ruta")
+                                                {
+                                                    MostrarErrorAnimado("Error: La entrega debe estar 'En ruta' antes de ser marcada como 'Entregada'.");
+                                                    break;
+                                                }
+
+                                                Entregas[indiceEntregaActualizar].Estado = "Entregada";
+                                                if (Entregas[indiceEntregaActualizar].PaqueteAEnviar != null)
+                                                {
+                                                    Entregas[indiceEntregaActualizar].PaqueteAEnviar.ActualizarEstado("Entregado");
+                                                }
+
+                                                Console.Write("Ingrese el nombre de la persona que recibe el paquete: ");
+                                                string nombreRec = Console.ReadLine();
+
+                                                DatosReceptor receptor = new DatosReceptor();
+                                                receptor.Nombre = nombreRec;
+                                                Entregas[indiceEntregaActualizar].Receptor = receptor;
+
+                                                int calif = ValidacionEntradas("Ingrese la calificación del repartidor para esta entrega (1 al 5): ", 1, 5, "Calificación inválida.");
+                                                Entregas[indiceEntregaActualizar].Calificacion = calif;
+
+                                                if (Entregas[indiceEntregaActualizar].RepartidorAsignado != null)
+                                                {
+                                                    Entregas[indiceEntregaActualizar].RepartidorAsignado.Disponibilidad = "Disponible";
+                                                    Entregas[indiceEntregaActualizar].RepartidorAsignado.ActualizarEntregas(1);
+                                                    Entregas[indiceEntregaActualizar].RepartidorAsignado.RegistrarCalificacion(calif);
+                                                }
+
+
+                                                if (Entregas[indiceEntregaActualizar].VehiculoAsignado != null)
+                                                {
+                                                    Entregas[indiceEntregaActualizar].VehiculoAsignado.Estado = "Disponible";
+                                                }
+
+
+                                                Console.WriteLine("¡Entrega finalizada con éxito! Repartidor y vehículo liberados.");
+                                                Console.ReadKey();
+                                                estadoActualizadoExitosamente = true;
+                                                break;
+                                        }
+                                    } while (!estadoActualizadoExitosamente);
+                                    break;
                             }
-                            Console.ReadKey();
-                        } while (option != 7);
+                        } while (opcionEntregasSwitch != 7);
                         Console.ReadKey();
                         break;
                     case 6:
@@ -2280,110 +2587,149 @@ namespace GoXelaDelivery
                         int opcionMenuIncidencia;
                         do
                         {
-                            Console.Clear();    
+                            Console.Clear();
                             opcionMenuIncidencia = ValidacionEntradas("Gestión de incidencias\n\n1. Registrar incidencia\n2. Mostrar información de incidencias\n3. Volver al menu principal\n\nIngrese una opción: ", 1, 3, "Error: Opción no valida");
+
                             switch (opcionMenuIncidencia)
                             {
                                 case 1:
                                     int codigoPaqueteIncidencia = IncidenciasList.Count + 1;
-                                    int codigoEntregaBuscar = ValidacionEntradas("Ingrese codigo de paquete: PAQ-", 1, int.MaxValue, "Repartidor no encontrado ");
+                                    int codigoEntregaBuscar = ValidacionEntradas("Ingrese el código de la entrega afectada: ENT-", 1, int.MaxValue, "Codigo no encontrado");
                                     int indiceEntrega = -1;
-                                    for (int i = 0; i < Entregass.Count; i++)
+
+                                    for (int i = 0; i < Entregas.Count; i++)
                                     {
-                                        if (codigoEntregaBuscar == Entregass[i].Codigo)
+                                        if (codigoEntregaBuscar == Entregas[i].Codigo)
                                         {
                                             indiceEntrega = i;
                                             break;
                                         }
                                     }
+
                                     if (indiceEntrega == -1)
                                     {
-                                        MostrarErrorAnimado("Paquete no encontrado");
+                                        MostrarErrorAnimado("Error: Entrega no encontrada.");
                                         Console.ReadKey();
                                         break;
                                     }
                                     else
                                     {
+                                        if (Entregas[indiceEntrega].Estado == "Entregada" || Entregas[indiceEntrega].Estado == "Cancelada")
+                                        {
+                                            MostrarErrorAnimado("Error: No se pueden registrar incidencias ni modificar una entrega que ya está Entregada o Cancelada.");
+                                            Console.ReadKey();
+                                            break;
+                                        }
+
                                         Console.Clear();
-                                        string tipoIndicenaciaString;
-                                        int tipoIncidencia = ValidacionEntradas("Seleccione tipo de incidencia: \n1. Retraso\n2. Perdido\n3. Dañado\n4. Cancelado\n5. Volver atras\n\n Ingrese una opción: ", 1, 5, "Error: Opción no valida");
-                                        if (tipoIncidencia == 1)
-                                        {
-                                            tipoIndicenaciaString = "Retraso";
-                                        }
-                                        else if (tipoIncidencia == 2)
-                                        {
-                                            tipoIndicenaciaString = "Perdido";
-                                        }
-                                        else if (tipoIncidencia == 3)
-                                        {
-                                            tipoIndicenaciaString = "Dañado";
-                                        }
-                                        else if (tipoIncidencia == 4)
-                                        {
-                                            tipoIndicenaciaString = "Cancelado";
-                                        }
-                                        else
-                                        {
-                                            tipoIndicenaciaString = "";
-                                        }
+                                        string tipoIncidenciaString;
+                                        int tipoIncidencia = ValidacionEntradas("Seleccione tipo de incidencia: \n1. Cliente ausente\n2. Vehículo averiado\n3. Dañado\n4. Otro (Retraso/Clima)\n5. Volver atras\n\nIngrese una opción: ", 1, 5, "Error: Opción no valida");
+
+                                        if (tipoIncidencia == 1) tipoIncidenciaString = "Cliente ausente";
+                                        else if (tipoIncidencia == 2) tipoIncidenciaString = "Vehículo averiado";
+                                        else if (tipoIncidencia == 3) tipoIncidenciaString = "Dañado";
+                                        else if (tipoIncidencia == 4) tipoIncidenciaString = "Otro";
+                                        else break;
+
                                         Console.Clear();
                                         Console.Write("Ingrese descripción: ");
                                         string descripcion = Console.ReadLine();
+
                                         string estadoIncidencia;
                                         Console.Clear();
                                         int estadoIncidenciaOpcion = ValidacionEntradas("Seleccione estado de incidencia: \n1. Pendiente\n2. En proceso\n3. Resuelto\n\nIngrese una opción: ", 1, 3, "Error: Opción no valida");
-                                        if (estadoIncidenciaOpcion == 1)
-                                        {
-                                            estadoIncidencia = "Pendiente";
 
-                                        }
-                                        else if (estadoIncidenciaOpcion == 2)
-                                        {
-                                            estadoIncidencia = "En proceso";
-                                        }
-                                        else
-                                        {
-                                            estadoIncidencia = "Resuelto";
-                                        }
+                                        if (estadoIncidenciaOpcion == 1) estadoIncidencia = "Pendiente";
+                                        else if (estadoIncidenciaOpcion == 2) estadoIncidencia = "En proceso";
+                                        else estadoIncidencia = "Resuelto";
+
                                         Console.Clear();
-
                                         Console.Write("Acción tomada: ");
                                         string accionTomada = Console.ReadLine();
-                                        int confirmacionIncidencia = ValidacionEntradas($"Resumen de datos: \n\nCódigo del paquete: {codigoPaqueteIncidencia}\nTipo de incidencia: {tipoIndicenaciaString}\nDescripción: {descripcion}\nEstado: {estadoIncidencia}\nAcción tomada: {accionTomada}\n\n¿Desea registrar esta incidencia? \n1. Sí, \n2. No: ", 1, 2, "Error: Opción no valida");
-                                        if(confirmacionIncidencia == 1)
+
+                                        int confirmacionIncidencia = ValidacionEntradas($"Resumen de datos: \n\nCódigo de incidencia: INC-{codigoPaqueteIncidencia}\nTipo de incidencia: {tipoIncidenciaString}\nDescripción: {descripcion}\nEstado: {estadoIncidencia}\nAcción tomada: {accionTomada}\n\n¿Desea registrar esta incidencia? \n1. Sí \n2. No: ", 1, 2, "Error: Opción no valida");
+
+                                        if (confirmacionIncidencia == 1)
                                         {
                                             Console.Clear();
-                                            Incidencias nuevaIncidencia = new Incidencias(codigoPaqueteIncidencia, tipoIndicenaciaString, descripcion, DateTime.Now, estadoIncidencia, accionTomada);
+                                            Incidencias nuevaIncidencia = new Incidencias(codigoPaqueteIncidencia, tipoIncidenciaString, descripcion, estadoIncidencia, accionTomada);
                                             IncidenciasList.Add(nuevaIncidencia);
+                                            Entregas[indiceEntrega].AgregarNuevaIncidencia(nuevaIncidencia);
 
-                                            Entregass[indiceEntrega].AgregarNuevaIncidencia(nuevaIncidencia);
+                                            Console.WriteLine("Incidencia registrada con éxito.\n");
+
+                                            int accionEntrega = ValidacionEntradas("¿Qué sucederá con la entrega debido a esta incidencia?\n1. Mantener estado actual (Continúa en ruta)\n2. Cancelar la entrega\n3. Reprogramar la entrega\nIngrese una opción: ", 1, 3, "Error: Opción no valida");
+
+                                            if (accionEntrega == 2)
+                                            {
+                                                Entregas[indiceEntrega].Estado = "Cancelada";
+
+                                                if (Entregas[indiceEntrega].RepartidorAsignado != null)
+                                                    Entregas[indiceEntrega].RepartidorAsignado.Disponibilidad = "Disponible";
+                                                if (Entregas[indiceEntrega].VehiculoAsignado != null)
+                                                    Entregas[indiceEntrega].VehiculoAsignado.Estado = "Disponible";
+                                                if (Entregas[indiceEntrega].PaqueteAEnviar != null)
+                                                    Entregas[indiceEntrega].PaqueteAEnviar.ActualizarEstado("Cancelado");
+
+                                                Console.WriteLine("\nLa entrega ha sido CANCELADA y el repartidor/vehículo/paquete han sido actualizados.");
+                                            }
+                                            else if (accionEntrega == 3)
+                                            {
+                                                Entregas[indiceEntrega].Estado = "Reprogramada";
+
+                                                Console.Write("\nIngrese la nueva fecha y hora para la entrega (ej. 10/09/2026 14:00): ");
+                                                string nuevaFecha = Console.ReadLine();
+
+                                                try
+                                                {
+                                                    Entregas[indiceEntrega].Fecha = DateTime.Parse(nuevaFecha);
+                                                }
+                                                catch (Exception)
+                                                {
+                                                    MostrarErrorAnimado("Error: Formato de fecha inválido.");
+                                                    break;
+                                                }
+
+
+                                                if (Entregas[indiceEntrega].RepartidorAsignado != null)
+                                                    Entregas[indiceEntrega].RepartidorAsignado.Disponibilidad = "Disponible";
+                                                if (Entregas[indiceEntrega].VehiculoAsignado != null)
+                                                    Entregas[indiceEntrega].VehiculoAsignado.Estado = "Disponible";
+                                                if (Entregas[indiceEntrega].PaqueteAEnviar != null)
+                                                    Entregas[indiceEntrega].PaqueteAEnviar.ActualizarEstado("Pendiente");
+
+                                                Console.WriteLine($"\nLa entrega ha sido REPROGRAMADA para: {nuevaFecha}. Repartidor/vehículo liberados temporalmente y paquete en espera.");
+                                            }
+
                                             MostrarAnimacionPuntos();
                                         }
                                         else
                                         {
-                                            MostrarErrorAnimado("Operación calcelada");
+                                            MostrarErrorAnimado("Operación cancelada");
                                             break;
                                         }
-                                        
                                     }
                                     break;
+
                                 case 2:
-                                    if(IncidenciasList.Count == 0)
+                                    Console.Clear();
+                                    if (IncidenciasList.Count == 0)
                                     {
                                         MostrarErrorAnimado("Sin incidencias registradas.");
                                         Console.ReadKey();
-                                        
                                     }
                                     else
                                     {
+                                        Console.WriteLine("LISTADO DE INCIDENCIAS\n");
                                         foreach (Incidencias incidencia in IncidenciasList)
                                         {
                                             incidencia.MostrarInformacion();
-                                            Console.WriteLine();
+                                            Console.WriteLine("-----------------------------");
                                         }
+                                        Console.ReadKey();
                                     }
                                     break;
+
                                 case 3:
                                     break;
                             }
@@ -2395,99 +2741,296 @@ namespace GoXelaDelivery
                         do
                         {
                             Console.Clear();
-                            opcionReportes = ValidacionEntradas("1.Entregas activas.\r\n2. Entregas finalizadas.\r\n3. Entregas canceladas.\r\n4. Entregas con incidencias.\r\n5. Repartidores disponibles.\r\n6. Repartidor con más entregas.\r\n7. Vehículo más utilizado.\r\n8. Cantidad de paquetes por tipo.\r\n9. Total de ingresos.\r\n10.Entrega con mayor costo\n11. Volver al menu pricipal\nEliga una opción: ",1,11,"Opción invalida");
+                            opcionReportes = ValidacionEntradas("REPORTES\n\n1. Entregas activas.\n2. Entregas finalizadas.\n3. Entregas canceladas.\n4. Entregas con incidencias.\n5. Repartidores disponibles.\n6. Repartidor con más entregas.\n7. Vehículo más utilizado.\n8. Cantidad de paquetes por tipo.\n9. Total de ingresos.\n10. Entrega con mayor costo.\n11. Volver al menú principal\n\nElija una opción: ", 1, 11, "Error: Opción inválida");
+
                             switch (opcionReportes)
                             {
                                 case 1:
                                     Console.Clear();
-                                    Console.WriteLine("Entregas activas");
-                                    Console.WriteLine();
-                                    
+                                    Console.WriteLine("--- ENTREGAS ACTIVAS ---");
+                                    int activas = 0;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if (ent.Estado != "Entregada" && ent.Estado != "Cancelada")
+                                        {
+                                            ent.MostrarInformacion();
+                                            Console.WriteLine("------------------------");
+                                            activas++;
+                                        }
+                                    }
+                                    if (activas == 0) MostrarErrorAnimado("No hay entregas activas en este momento.");
+                                    else Console.WriteLine($"Total de entregas activas: {activas}");
                                     Console.ReadKey();
                                     break;
+
                                 case 2:
                                     Console.Clear();
-                                    Console.WriteLine("Entregas finalizadas");
-                                    Console.WriteLine();
+                                    Console.WriteLine("--- ENTREGAS FINALIZADAS ---");
+                                    int finalizadas = 0;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if (ent.Estado == "Entregada")
+                                        {
+                                            ent.MostrarInformacion();
+                                            Console.WriteLine("------------------------");
+                                            finalizadas++;
+                                        }
+                                    }
+                                    if (finalizadas == 0) MostrarErrorAnimado("No hay entregas finalizadas.");
+                                    else Console.WriteLine($"Total de entregas finalizadas: {finalizadas}");
                                     Console.ReadKey();
-
                                     break;
+
                                 case 3:
                                     Console.Clear();
-                                    Console.WriteLine("Entregas canceladas");
-                                    Console.WriteLine();
+                                    Console.WriteLine("--- ENTREGAS CANCELADAS ---");
+                                    int canceladas = 0;
+                                    foreach (Entrega ent in Entregas)
+                                    {
+                                        if (ent.Estado == "Cancelada")
+                                        {
+                                            ent.MostrarInformacion();
+                                            Console.WriteLine("------------------------");
+                                            canceladas++;
+                                        }
+                                    }
+                                    if (canceladas == 0) MostrarErrorAnimado("No hay entregas canceladas.");
+                                    else Console.WriteLine($"Total de entregas canceladas: {canceladas}");
                                     Console.ReadKey();
                                     break;
+
                                 case 4:
                                     Console.Clear();
-                                    Console.WriteLine("Entregas con incidencias");
-                                    Console.WriteLine();
-                                    Console.ReadKey();
-                                    break;
-                                case 5:
-                                    Console.Clear();
-                                   
-                                    if(Repartidores.Count == 0)
+                                    Console.WriteLine("--- ENTREGAS CON INCIDENCIAS ---");
+                                    int entregasConIncidenciasCount = 0;
+
+                                    foreach (Entrega ent in Entregas)
                                     {
-                                        Console.WriteLine("Sin repartidores registrados aun");
+                                        if (ent.IncidenciasHistorial != null && ent.IncidenciasHistorial.Count > 0)
+                                        {
+                                            Console.WriteLine($"\nCódigo de Entrega: ENT-{ent.Codigo}");
+                                            Console.WriteLine($"Estado actual de la entrega: {ent.Estado}");
+                                            Console.WriteLine("Detalle de incidencias:");
+
+                                            foreach (Incidencias inc in ent.IncidenciasHistorial)
+                                            {
+                                                Console.WriteLine($"  * Tipo: {inc.Tipo}");
+                                                Console.WriteLine($"  * Descripción: {inc.Descripcion}");
+                                                Console.WriteLine($"  * Estado de la incidencia: {inc.Estado}");
+                                                Console.WriteLine($"  * Acción tomada: {inc.AccionTomada}");
+                                            }
+                                            Console.WriteLine("------------------------");
+                                            entregasConIncidenciasCount++;
+                                        }
+                                    }
+
+                                    if (entregasConIncidenciasCount == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay entregas con incidencias registradas.");
                                     }
                                     else
                                     {
-                                        Console.WriteLine("Repartidores disponibles");
+                                        Console.WriteLine($"\nTotal de entregas con incidencias: {entregasConIncidenciasCount}");
+                                    }
+                                    Console.ReadKey();
+                                    break;
+
+                                case 5:
+                                    Console.Clear();
+                                    if (Repartidores.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("Sin repartidores registrados aún.");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("--- REPARTIDORES DISPONIBLES ---");
                                         int contadorRepartidoresActivos = 0;
                                         for (int i = 0; i < Repartidores.Count; i++)
                                         {
                                             if (Repartidores[i].Disponibilidad == "Disponible")
                                             {
+                                                Console.WriteLine($"- {Repartidores[i].NombreCompleto} (Código: REP-{Repartidores[i].Codigo})");
                                                 contadorRepartidoresActivos += 1;
                                             }
                                         }
-
-                                        Console.WriteLine($"Disponibilidad: {contadorRepartidoresActivos}");
+                                        Console.WriteLine($"\nTotal disponibles: {contadorRepartidoresActivos}");
                                     }
                                     Console.ReadKey();
                                     break;
+
                                 case 6:
                                     Console.Clear();
-                                    Console.WriteLine("Repartidores con mas entregas");
-                                    Console.WriteLine();
+                                    Console.WriteLine("--- REPARTIDOR CON MÁS ENTREGAS ---");
+                                    if (Repartidores.Count == 0 || Entregas.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay datos suficientes para calcular.");
+                                    }
+                                    else
+                                    {
+                                        Repartidor topRepartidor = null;
+                                        int maxEntregasRepartidor = -1;
+
+                                        foreach (Repartidor rep in Repartidores)
+                                        {
+                                            int contadorEntregas = 0;
+                                            foreach (Entrega ent in Entregas)
+                                            {
+                                                if (ent.RepartidorAsignado != null && ent.RepartidorAsignado.Codigo == rep.Codigo && ent.Estado == "Entregada")
+                                                {
+                                                    contadorEntregas++;
+                                                }
+                                            }
+
+                                            if (contadorEntregas > maxEntregasRepartidor)
+                                            {
+                                                maxEntregasRepartidor = contadorEntregas;
+                                                topRepartidor = rep;
+                                            }
+                                        }
+
+                                        if (topRepartidor != null && maxEntregasRepartidor > 0)
+                                        {
+                                            Console.WriteLine($"El repartidor con más entregas completadas es: {topRepartidor.NombreCompleto}");
+                                            Console.WriteLine($"Total de entregas: {maxEntregasRepartidor}");
+                                        }
+                                        else
+                                        {
+                                            MostrarErrorAnimado("Aún no hay entregas finalizadas asignadas a un repartidor.");
+                                        }
+                                    }
                                     Console.ReadKey();
                                     break;
+
                                 case 7:
                                     Console.Clear();
-                                    Console.WriteLine("Vehiculo más utilizado");
-                                    Console.WriteLine();
+                                    Console.WriteLine("--- VEHÍCULO MÁS UTILIZADO ---");
+                                    if (Entregas.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay datos de entregas para calcular");
+                                    }
+                                    else
+                                    {
+                                        Vehiculo topVehiculo = null;
+                                        int maxUsoVehiculo = -1;
+
+                                        List<Vehiculo> todosLosVehiculos = new List<Vehiculo>();
+                                        todosLosVehiculos.AddRange(Automoviles);
+                                        todosLosVehiculos.AddRange(Motocicletas);
+                                        todosLosVehiculos.AddRange(Bicicletas);
+
+                                        foreach (Vehiculo veh in todosLosVehiculos)
+                                        {
+                                            int contadorUso = 0;
+                                            foreach (Entrega ent in Entregas)
+                                            {
+                                                if (ent.VehiculoAsignado != null && ent.VehiculoAsignado.Codigo == veh.Codigo)
+                                                {
+                                                    contadorUso++;
+                                                }
+                                            }
+
+                                            if (contadorUso > maxUsoVehiculo)
+                                            {
+                                                maxUsoVehiculo = contadorUso;
+                                                topVehiculo = veh;
+                                            }
+                                        }
+
+                                        if (topVehiculo != null && maxUsoVehiculo > 0)
+                                        {
+                                            Console.WriteLine($"El vehículo más utilizado es: {topVehiculo.Marca} {topVehiculo.Modelo} (Código: VEH-{topVehiculo.Codigo})");
+                                            Console.WriteLine($"Cantidad de veces asignado: {maxUsoVehiculo}");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Aún no se han asignado vehículos a las entregas.");
+                                        }
+                                    }
                                     Console.ReadKey();
                                     break;
+
                                 case 8:
                                     Console.Clear();
-                                    Console.WriteLine("Cantidad de paquetes por tipo");
-                                    Console.WriteLine();
+                                    Console.WriteLine("--- CANTIDAD DE PAQUETES POR TIPO ---");
+                                    Console.WriteLine($"1. Documentos registrados:          {Documentos.Count}");
+                                    Console.WriteLine($"2. Paquetes Estándar registrados:   {PaquetesEstandar.Count}");
+                                    Console.WriteLine($"3. Paquetes Frágiles registrados:   {PaquetesFragiles.Count}");
+                                    Console.WriteLine($"4. Productos Refrigerados:          {ProductosRefrigerados.Count}");
+
+                                    int totalPaquetes = Documentos.Count + PaquetesEstandar.Count + PaquetesFragiles.Count + ProductosRefrigerados.Count;
+                                    Console.WriteLine($"\nTotal general de paquetes en sistema: {totalPaquetes}");
+                                    Console.ReadKey();
+                                    break;
+
+                                case 9:
+                                    Console.Clear();
+                                    Console.WriteLine("--- TOTAL DE INGRESOS  ---");
+
+                                    double SumaIngresosRecursiva(List<Entrega> lista, int indice)
+                                    {
+                                        if (indice >= lista.Count)
+                                        {
+                                            return 0;
+                                        }
+
+                                        double valorActual = (lista[indice].Estado == "Entregada") ? lista[indice].Total : 0;
+
+                                        return valorActual + SumaIngresosRecursiva(lista, indice + 1);
+                                    }
+
+                                    if (Entregas.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay entregas en el sistema.");
+                                    }
+                                    else
+                                    {
+                                        double totalGanado = SumaIngresosRecursiva(Entregas, 0);
+                                        Console.WriteLine($"El ingreso total por entregas FINALIZADAS es: Q{totalGanado:F2}");
+                                    }
 
                                     Console.ReadKey();
                                     break;
-                                case 9:
-                                    Console.Clear();
-                                    Console.WriteLine("Total de ingresos");
-                                    Console.WriteLine();
-                                    Console.ReadKey();
-                                    break;
+
                                 case 10:
                                     Console.Clear();
-                                    Console.WriteLine("Entrega con mayor costo");
-                                    Console.WriteLine();
-                                    Console.ReadKey();
+                                    Console.WriteLine("--- ENTREGA CON MAYOR COSTO ---");
+                                    if (Entregas.Count == 0)
+                                    {
+                                        MostrarErrorAnimado("No hay entregas registradas.");
+                                    }
+                                    else
+                                    {
+                                        Entrega entregaMayorCosto = null;
+                                        double maxCosto = -1;
+
+                                        foreach (Entrega ent in Entregas)
+                                        {
+                                            if (ent.Total > maxCosto)
+                                            {
+                                                maxCosto = ent.Total;
+                                                entregaMayorCosto = ent;
+                                            }
+                                        }
+
+                                        if (entregaMayorCosto != null)
+                                        {
+                                            Console.WriteLine("La entrega con el mayor costo es:");
+                                            entregaMayorCosto.MostrarInformacion();
+                                            Console.WriteLine($"Costo total de esta entrega: Q{entregaMayorCosto.Total:F2}");
+                                        }
+                                    }
+
                                     break;
+
                                 case 11:
                                     break;
                             }
-                        } while(opcionReportes != 11);
+                        } while (opcionReportes != 11);
 
                         Console.ReadKey();
                         break;
                     case 8:
                         Console.Clear();
-                       
                         break;
                 }
             } while (opcion != 8);
@@ -2498,7 +3041,7 @@ namespace GoXelaDelivery
             int codigoBuscar = ValidacionEntradas($"Ingrese codigo de paquete: {tipoPaquete}", 1, int.MaxValue, "Codigo no encontrado");
 
             int indicePaquete = -1;
-            for(int i = 0; i < listaPaquetes.Count; i++)
+            for (int i = 0; i < listaPaquetes.Count; i++)
             {
                 if (listaPaquetes[i].Codigo == codigoBuscar)
                 {
@@ -2506,7 +3049,7 @@ namespace GoXelaDelivery
                     break;
                 }
             }
-            if(indicePaquete == -1)
+            if (indicePaquete == -1)
             {
                 Console.Clear();
                 Console.WriteLine("Codigo no encontrado");
@@ -2638,7 +3181,7 @@ namespace GoXelaDelivery
         {
             Console.ForegroundColor = ConsoleColor.Green;
 
-      
+
 
             Console.Write($" {mensajeExito}");
 
@@ -2655,43 +3198,20 @@ namespace GoXelaDelivery
             for (int i = 0; i < 5; i++)
             {
                 Console.Write(".");
-                Thread.Sleep(400); 
+                Thread.Sleep(400);
             }
             Console.Clear();
             MostrarExitoAnimado("Registro completado con éxito!");
-        }
-        static int ValidarEntero()
-        {
-            int dato;
-            do
-            {
-                if (!int.TryParse(Console.ReadLine(), out dato))
-                {
-                    Console.WriteLine("Error: el dato debe ser un número\nIntente nuevamente");
-                }
-                else
-                {
-                    if (dato < 0)
-                    {
-                        Console.WriteLine("Error: el número debe ser positivo");
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            } while (true);
-            return dato;
         }
         static double CalcularTarifaBase(double peso, double distancia, string tipoPaquete, string tipoServicio)
         {
             double total;
             total = (peso * 3) + (distancia * 5);
-            if(tipoServicio=="Prioritario")
+            if (tipoServicio == "Prioritario")
             {
                 total += 10;
             }
-            else if(tipoServicio=="Urgente")
+            else if (tipoServicio == "Urgente")
             {
                 total += 20;
             }
